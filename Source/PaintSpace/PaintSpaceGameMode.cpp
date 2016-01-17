@@ -5,4 +5,8 @@
 
 
 
+APaintSpaceGameMode::APaintSpaceGameMode()
+	: Super()
+{
 
+}

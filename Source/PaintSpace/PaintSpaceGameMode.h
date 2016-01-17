@@ -14,6 +14,7 @@ class PAINTSPACE_API APaintSpaceGameMode : public AGameMode
 	GENERATED_BODY()
 	
 	
-	
+public:
+	APaintSpaceGameMode();
 	
 };
