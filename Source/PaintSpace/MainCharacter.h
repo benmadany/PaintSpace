@@ -23,6 +23,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	
+	UPROPERTY(EditAnywhere)
+	USceneComponent* VisibleComponent;
 	
 };
