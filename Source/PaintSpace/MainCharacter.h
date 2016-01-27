@@ -24,6 +24,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
 	UPROPERTY(EditAnywhere)
-	USceneComponent* VisibleComponent;
+	USceneComponent* HandsComponent;
 	
 };

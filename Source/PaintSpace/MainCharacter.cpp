@@ -15,12 +15,12 @@ AMainCharacter::AMainCharacter()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 
 	UCameraComponent* VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	VisibleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisibleComponent"));
+	HandsComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hands"));
 
 	VRCamera->AttachTo(RootComponent);
 	VRCamera->SetRelativeLocation(FVector(0.0f, 0.0f, 95.0f));
 	VRCamera->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-	VisibleComponent->AttachTo(RootComponent);
+	HandsComponent->AttachTo(RootComponent);
 }
 
 // Called when the game starts or when spawned
