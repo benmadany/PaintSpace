@@ -9,11 +9,12 @@
 APaintMaterial::APaintMaterial()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	VisibleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visible Component"));
 	VisibleComponent->AttachTo(RootComponent);
+	VisibleComponent->SetVisibility(true);
 
 }
 

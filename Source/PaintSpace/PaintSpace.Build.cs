@@ -6,11 +6,12 @@ public class PaintSpace : ModuleRules
 {
 	public PaintSpace(TargetInfo Target)
 	{
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "LeapMotion", "Leap" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "LeapMotion", "Leap" });
 
         PublicIncludePaths.AddRange(new string[] { "LeapMotion/Public" });
 
         PrivateDependencyModuleNames.AddRange(new string[] {  });
+
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

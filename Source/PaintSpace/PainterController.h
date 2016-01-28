@@ -3,13 +3,13 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
-#include "MainPlayerController.generated.h"
+#include "PainterController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PAINTSPACE_API AMainPlayerController : public APlayerController
+class PAINTSPACE_API APainterController : public APlayerController
 {
 	GENERATED_BODY()
 	

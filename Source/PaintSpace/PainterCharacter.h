@@ -3,16 +3,16 @@
 #pragma once
 
 #include "GameFramework/Pawn.h"
-#include "MainCharacter.generated.h"
+#include "PainterCharacter.generated.h"
 
 UCLASS()
-class PAINTSPACE_API AMainCharacter : public APawn
+class PAINTSPACE_API APainterCharacter : public APawn
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this pawn's properties
-	AMainCharacter();
+	APainterCharacter();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
