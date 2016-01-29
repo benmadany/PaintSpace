@@ -2,6 +2,7 @@
 
 #include "PaintSpace.h"
 #include "PaintBrushComponent.h"
+#include "PaintMaterial.h"
 
 using namespace Leap;
 
@@ -35,7 +36,18 @@ void UPaintBrushComponent::TickComponent( float DeltaTime, ELevelTick TickType, 
 	{
 		const Frame latestFrame = LeapController.frame();
 		FString dbgmsg(latestFrame.toString().c_str());
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, dbgmsg);
+
+		if (PaintMaterial != NULL)
+		{
+			UWorld* const world = GetWorld();
+			if (world != NULL) {
+				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, dbgmsg);
+				const FRotator SpawnRotation = AttachParent->GetComponentRotation();
+				const FVector SpawnLocation = AttachParent->GetComponentLocation();
+				world->SpawnActor<APaintMaterial>(PaintMaterial, SpawnLocation, SpawnRotation);
+			}
+		}
+		
 	}
 
 }

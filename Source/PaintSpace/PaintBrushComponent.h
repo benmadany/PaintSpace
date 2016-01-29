@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "Components/ActorComponent.h"
+#include "Components/SceneComponent.h"
 #include "Leap_NoPI.h"
 #include "PaintBrushComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PAINTSPACE_API UPaintBrushComponent : public UActorComponent
+class PAINTSPACE_API UPaintBrushComponent : public USceneComponent
 {
 	GENERATED_BODY()
 
@@ -22,7 +22,11 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class APaintMaterial> PaintMaterial;
 	
 private:
 	Leap::Controller LeapController;
+
+
 };
