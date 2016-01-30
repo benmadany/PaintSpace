@@ -27,6 +27,8 @@ public:
 	
 private:
 	Leap::Controller LeapController;
+	int64_t PrevFrameID;
 
-
+	void CheckHand(Leap::Frame frame);
+	void TryPainting(Leap::Hand hand);
 };
