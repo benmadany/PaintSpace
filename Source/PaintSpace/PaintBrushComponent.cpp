@@ -6,6 +6,8 @@
 
 using namespace Leap;
 
+// This class should be attached to some scene component in order to provide paint functionality based on sockets.
+
 // Sets default values for this component's properties
 UPaintBrushComponent::UPaintBrushComponent()
 {
@@ -80,13 +82,21 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 				}
 			}
 			// spawn location
-			const FVector ParentSpawnLocation = GetOwner()->GetActorLocation();
-			//FVector(58.3f, 2.65f, 63.3f) offset...
-			const FVector SpawnLocation = IndexFinger.tipPosition().toVector3<FVector>() + FVector(58.3f, 2.65f, 63.3f) + ParentSpawnLocation;
+				//Vector TipPositionLeap = IndexFinger.tipPosition();
+				// convert from LeapMotion vector to Unreal Engine vector
+				//FVector TipPositionUnreal = FVector(TipPositionLeap.y, -TipPositionLeap.x, -TipPositionLeap.z);
+			// Use skeletal mesh socket to get accurate finger position
+			FName IndexFingerSocket;
+			if (AttachParent->GetAllSocketNames().IsValidIndex(0))
+				IndexFingerSocket = FName(AttachParent->GetAllSocketNames()[0]);
+			FVector FingerOffset = FVector(0, 0.0f, 0.0f); // not needed
+			const FVector SpawnLocation = (AttachParent->GetSocketLocation(IndexFingerSocket)) + FingerOffset;
+
 			// spawn rotation
 			const FRotator ControlRotation = GetComponentRotation();
-			FRotationMatrix RotationMatrix(ControlRotation); // not sure if necessary
+			//FRotationMatrix RotationMatrix(ControlRotation); // not sure if necessary
 			const FRotator SpawnRotation = ControlRotation;
+
 			// spawn static mesh
 			world->SpawnActor<APaintMaterial>(PaintMaterial, SpawnLocation, SpawnRotation);
 
