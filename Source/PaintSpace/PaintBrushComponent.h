@@ -26,6 +26,7 @@ public:
 	TSubclassOf<class APaintMaterial> PaintMaterial;
 	
 private:
+	APaintMaterial* PaintMaterialInstance;
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
 

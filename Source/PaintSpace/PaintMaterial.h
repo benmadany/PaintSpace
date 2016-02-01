@@ -20,7 +20,10 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USceneComponent* VisibleComponent;
+	UPROPERTY(VisibleAnywhere)
+	UInstancedStaticMeshComponent* VisibleComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMesh* InstanceMesh;
 	
 };

@@ -26,8 +26,15 @@ void UPaintBrushComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-
+	if (PaintMaterial != NULL)
+	{
+		UWorld* const world = GetWorld();
+		if (world != NULL)
+		{
+			// spawn instanced static mesh actor, better performance than individual actors
+			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
+		}
+	}
 }
 
 
@@ -67,11 +74,11 @@ void UPaintBrushComponent::CheckHand(Frame frame)
 
 void UPaintBrushComponent::TryPainting(Hand hand)
 {
-	if (PaintMaterial != NULL)
-	{
-		UWorld* const world = GetWorld();
-		if (world != NULL) {
-
+	//if (PaintMaterial != NULL)
+	//{
+		//UWorld* const world = GetWorld();
+		//if (world != NULL)
+		//{
 			Finger IndexFinger;
 			for (Finger finger : hand.fingers())
 			{
@@ -96,10 +103,11 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 			const FRotator SpawnRotation = SpawnLocation.Rotation();
 
 			// spawn static mesh
-			world->SpawnActor<APaintMaterial>(PaintMaterial, SpawnLocation, SpawnRotation);
+			PaintMaterialInstance->VisibleComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, FVector(0.01,0.01f,0.05f)));
+			//world->SpawnActor<APaintMaterial>(PaintMaterial, SpawnLocation, SpawnRotation);
 
 			FString dbgmsg = FString((SpawnLocation.ToString()));
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
-		}
-	}
+		//}
+	//}
 }
