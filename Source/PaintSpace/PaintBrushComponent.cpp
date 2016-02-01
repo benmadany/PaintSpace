@@ -93,9 +93,7 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 			const FVector SpawnLocation = (AttachParent->GetSocketLocation(IndexFingerSocket)) + FingerOffset;
 
 			// spawn rotation
-			const FRotator ControlRotation = GetComponentRotation();
-			//FRotationMatrix RotationMatrix(ControlRotation); // not sure if necessary
-			const FRotator SpawnRotation = ControlRotation;
+			const FRotator SpawnRotation = SpawnLocation.Rotation();
 
 			// spawn static mesh
 			world->SpawnActor<APaintMaterial>(PaintMaterial, SpawnLocation, SpawnRotation);
