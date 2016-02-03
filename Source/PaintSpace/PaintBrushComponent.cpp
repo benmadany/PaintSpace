@@ -35,6 +35,14 @@ void UPaintBrushComponent::BeginPlay()
 			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
 		}
 	}
+
+	if (GEngine->HMDDevice.IsValid())
+	{
+		//IHeadMountedDisplay* HMD = GEngine->HMDDevice.Get();
+		FString vrmsg = FString(TEXT("HMD Detected, optimizing controls."));
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, vrmsg);
+		LeapController.setPolicy(Controller::PolicyFlag::POLICY_OPTIMIZE_HMD);
+	}
 }
 
 
@@ -43,12 +51,9 @@ void UPaintBrushComponent::TickComponent( float DeltaTime, ELevelTick TickType, 
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ensure we are connected to the device
 	if (LeapController.isConnected())
 	{
-		// get latest frame
 		const Frame latestFrame = LeapController.frame();
-		// check to see if it is different than the previous
 		if (latestFrame.id() != PrevFrameID)
 		{
 			CheckHand(latestFrame);
@@ -62,7 +67,6 @@ void UPaintBrushComponent::TickComponent( float DeltaTime, ELevelTick TickType, 
 
 void UPaintBrushComponent::CheckHand(Frame frame)
 {
-	// look for the right hand
 	for (Hand hand : frame.hands()) {
 		if (hand.isRight())
 		{
