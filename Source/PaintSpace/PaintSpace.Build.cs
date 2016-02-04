@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class PaintSpace : ModuleRules
 {
-	public PaintSpace(TargetInfo Target)
+
+    public PaintSpace(TargetInfo Target)
 	{
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "LeapMotion", "Leap", "UMG" });
 
