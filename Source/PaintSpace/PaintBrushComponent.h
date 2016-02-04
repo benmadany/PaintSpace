@@ -23,7 +23,7 @@ public:
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class APaintMaterial> PaintMaterial;
+	TSubclassOf<class APaintMaterial> PaintMaterial; // this is the template for PaintMaterialInstance
 	
 private:
 	APaintMaterial* PaintMaterialInstance;

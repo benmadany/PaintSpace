@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PaintSpace.h"
-#include "Leap_NoPI.h"
 #include "PaintMaterial.h"
 
 // This class functions as an actor intended to hold a hierarchical instanced static mesh component.

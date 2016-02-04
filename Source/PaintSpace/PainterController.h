@@ -14,6 +14,7 @@ class PAINTSPACE_API APainterController : public APlayerController
 	GENERATED_BODY()
 	
 	
-	
+public:
+	APainterController();
 	
 };
