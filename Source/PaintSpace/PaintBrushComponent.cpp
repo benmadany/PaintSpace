@@ -65,9 +65,11 @@ void UPaintBrushComponent::TickComponent( float DeltaTime, ELevelTick TickType, 
 
 }
 
+
 void UPaintBrushComponent::CheckHand(Frame frame)
 {
-	for (Hand hand : frame.hands()) {
+	for (Hand hand : frame.hands())
+	{
 		if (hand.isRight())
 		{
 			// need to include checking for gestures
@@ -75,6 +77,7 @@ void UPaintBrushComponent::CheckHand(Frame frame)
 		}
 	}
 }
+
 
 void UPaintBrushComponent::TryPainting(Hand hand)
 {

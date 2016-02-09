@@ -4,6 +4,7 @@
 
 #include "Components/WidgetComponent.h"
 #include "Runtime/UMG/Public/UMG.h"
+#include "Leap_NoPI.h"
 #include "HandMenuWidgetComponent.generated.h"
 
 /**
@@ -20,10 +21,14 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UUserWidget> HMWidgetTemplate;
 
 private:
 	UUserWidget* HMWidgetInstance;
+	Leap::Controller LeapController;
+	int64_t PrevFrameID;
 	
 };
