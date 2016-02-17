@@ -6,6 +6,7 @@
 
 using namespace Leap;
 
+// Potentially deprecated.
 
 UHandMenuWidgetComponent::UHandMenuWidgetComponent()
 	: Super()

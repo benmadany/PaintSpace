@@ -2,6 +2,7 @@
 
 #include "PaintSpace.h"
 #include "PainterController.h"
+#include "HandMenuWidget.h"
 
 
 
