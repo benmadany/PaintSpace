@@ -12,3 +12,21 @@ APainterController::APainterController()
 {
 	
 }
+
+void APainterController::BeginPlay()
+{
+	Super::BeginPlay();
+
+
+	if (HandMenuWidgetTemplate)
+	{
+		if (!HandMenuWidgetInstance)
+		{
+			HandMenuWidgetInstance = CreateWidget<UHandMenuWidget>(this, HandMenuWidgetTemplate);
+		}
+		if (!HandMenuWidgetInstance->GetIsVisible())
+		{
+			HandMenuWidgetInstance->AddToViewport();
+		}
+	}
+}

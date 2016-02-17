@@ -18,5 +18,17 @@ class PAINTSPACE_API APainterController : public APlayerController
 	
 public:
 	APainterController();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UHandMenuWidget> HandMenuWidgetTemplate;
+
+	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY()
+	UHandMenuWidget* HandMenuWidgetInstance;
+
+	Leap::Controller LeapController;
+	int64_t PrevFrameID;
 	
 };
