@@ -23,12 +23,13 @@ public:
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class APaintMaterial> PaintMaterial; // this is the template for PaintMaterialInstance
+	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
 	
 private:
 	APaintMaterial* PaintMaterialInstance;
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
+	//FName IndexFingerSocket;
 
 	void CheckHand(Leap::Frame frame);
 	void TryPainting(Leap::Hand hand);

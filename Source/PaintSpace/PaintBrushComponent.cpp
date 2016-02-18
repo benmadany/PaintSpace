@@ -17,7 +17,8 @@ UPaintBrushComponent::UPaintBrushComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	PrevFrameID = 0;
-	
+
+	//IndexFingerSocket = FName(*FString("rt_index_endSocket"));
 }
 
 
@@ -26,10 +27,10 @@ void UPaintBrushComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (PaintMaterial != NULL)
+	if (PaintMaterial)
 	{
 		UWorld* const world = GetWorld();
-		if (world != NULL)
+		if (world)
 		{
 			// spawn instanced static mesh actor, better performance than individual actors
 			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
@@ -43,13 +44,15 @@ void UPaintBrushComponent::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, vrmsg);
 		LeapController.setPolicy(Controller::PolicyFlag::POLICY_OPTIMIZE_HMD);
 	}
+
+	//IndexFingerSocket = AttachSocketName;
 }
 
 
 // Called every frame
-void UPaintBrushComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
+void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (LeapController.isConnected())
 	{
@@ -81,40 +84,28 @@ void UPaintBrushComponent::CheckHand(Frame frame)
 
 void UPaintBrushComponent::TryPainting(Hand hand)
 {
-	//if (PaintMaterial != NULL)
-	//{
-		//UWorld* const world = GetWorld();
-		//if (world != NULL)
-		//{
-			Finger IndexFinger;
-			for (Finger finger : hand.fingers())
-			{
-				if (finger.type() == Finger::Type::TYPE_INDEX)
-				{
-					IndexFinger = finger;
-					break;
-				}
-			}
-			// spawn location
-				//Vector TipPositionLeap = IndexFinger.tipPosition();
-				// convert from LeapMotion vector to Unreal Engine vector
-				//FVector TipPositionUnreal = FVector(TipPositionLeap.y, -TipPositionLeap.x, -TipPositionLeap.z);
-			// Use skeletal mesh socket to get accurate finger position
-			FName IndexFingerSocket;
-			if (AttachParent->GetAllSocketNames().IsValidIndex(0))
-				IndexFingerSocket = FName(AttachParent->GetAllSocketNames()[0]);
-			FVector FingerOffset = FVector(0, 0.0f, 0.0f); // not needed
-			const FVector SpawnLocation = (AttachParent->GetSocketLocation(IndexFingerSocket)) + FingerOffset;
 
-			// spawn rotation
-			const FRotator SpawnRotation = SpawnLocation.Rotation();
+	Finger IndexFinger;
+	for (Finger finger : hand.fingers())
+	{
+		if (finger.type() == Finger::Type::TYPE_INDEX)
+		{
+			IndexFinger = finger;
+			break;
+		}
+	}
 
-			// spawn static mesh
-			PaintMaterialInstance->VisibleComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, FVector(0.01,0.01f,0.05f)));
-			//world->SpawnActor<APaintMaterial>(PaintMaterial, SpawnLocation, SpawnRotation);
+	// Use skeletal mesh socket to get accurate finger position
+	//const FVector SpawnLocation = (AttachParent->GetSocketLocation(IndexFingerSocket));
+	const FVector SpawnLocation = GetComponentLocation();
 
-			FString dbgmsg = FString((SpawnLocation.ToString()));
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
-		//}
-	//}
+	// spawn rotation
+	const FRotator SpawnRotation = SpawnLocation.Rotation();
+
+	// spawn static mesh
+	PaintMaterialInstance->VisibleComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, FVector(0.01, 0.01f, 0.05f)));
+
+	FString dbgmsg = FString((SpawnLocation.ToString()));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
+
 }

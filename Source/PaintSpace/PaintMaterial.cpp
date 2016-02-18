@@ -14,10 +14,6 @@ APaintMaterial::APaintMaterial()
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 
-	//VisibleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visible Component"));
-	//VisibleComponent->AttachTo(RootComponent);
-	//VisibleComponent->SetVisibility(true);
-
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMeshObject(TEXT("StaticMesh'/Game/Meshes/HexMesh.HexMesh'"));
 	InstanceMesh = StaticMeshObject.Object;
 

@@ -23,12 +23,10 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<class UUserWidget> HMWidgetTemplate;
-
 private:
-	UUserWidget* HMWidgetInstance;
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
+
+	bool ShowMenu;
 	
 };

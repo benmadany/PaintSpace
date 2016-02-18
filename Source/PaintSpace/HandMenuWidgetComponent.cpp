@@ -6,7 +6,6 @@
 
 using namespace Leap;
 
-// Potentially deprecated.
 
 UHandMenuWidgetComponent::UHandMenuWidgetComponent()
 	: Super()
@@ -15,6 +14,7 @@ UHandMenuWidgetComponent::UHandMenuWidgetComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	PrevFrameID = 0;
+	ShowMenu = false;
 }
 
 
@@ -22,32 +22,22 @@ void UHandMenuWidgetComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HMWidgetInstance)
+	if (!WidgetClass)
 	{
-		if (!HMWidgetInstance)
-		{
-			HMWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), HMWidgetTemplate);
-		}
-		/*if (!HMWidgetInstance->GetIsVisible())
-		{
-			HMWidgetInstance->AddToViewport();
-		}*/
+		// no menu declared
 	}
-
-	InitWidget();
 }
 
 void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	bool ShowMenu = false;
-
 	if (LeapController.isConnected())
 	{
 		const Frame latestFrame = LeapController.frame();
 		if (latestFrame.id() != PrevFrameID)
 		{
+			ShowMenu = false;
 			for (Hand hand : latestFrame.hands())
 			{
 				if (hand.isLeft()) 
@@ -61,22 +51,17 @@ void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 	}
 
-	/*if (ShowMenu)
-		HMWidgetInstance->AddToViewport();
-	if (!ShowMenu)
-		HMWidgetInstance->RemoveFromViewport();
 	if (ShowMenu)
 	{
-		Widget->AddToViewport();
-		FString dbgmsg = FString("Show Widget");
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
+		SetHiddenInGame(false, true);
+		//FString dbgmsg = FString("Show Widget");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
 	}
 	if (!ShowMenu) 
 	{
-		Widget->RemoveFromViewport();
-		RemoveWidgetFromScreen();
-		FString dbgmsg = FString("Hide Widget");
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
-	}*/
+		SetHiddenInGame(true, true);
+		//FString dbgmsg = FString("Hide Widget");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
+	}
 		
 }

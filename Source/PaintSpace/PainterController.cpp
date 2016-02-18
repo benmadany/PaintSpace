@@ -18,7 +18,7 @@ void APainterController::BeginPlay()
 	Super::BeginPlay();
 
 
-	if (HandMenuWidgetTemplate)
+	/*if (HandMenuWidgetTemplate)
 	{
 		if (!HandMenuWidgetInstance)
 		{
@@ -26,7 +26,7 @@ void APainterController::BeginPlay()
 		}
 		if (!HandMenuWidgetInstance->GetIsVisible())
 		{
-			HandMenuWidgetInstance->AddToViewport();
+			//HandMenuWidgetInstance->AddToViewport();
 		}
-	}
+	}*/
 }
