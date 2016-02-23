@@ -103,7 +103,8 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	const FRotator SpawnRotation = SpawnLocation.Rotation();
 
 	// spawn static mesh
-	PaintMaterialInstance->VisibleComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, FVector(0.01, 0.01f, 0.05f)));
+	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);
+	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
 
 	FString dbgmsg = FString((SpawnLocation.ToString()));
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);

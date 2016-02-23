@@ -21,7 +21,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	UPROPERTY(VisibleAnywhere)
-	UInstancedStaticMeshComponent* VisibleComponent;
+	UInstancedStaticMeshComponent* MeshComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMesh* InstanceMesh;

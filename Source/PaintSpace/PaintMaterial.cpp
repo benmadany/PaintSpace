@@ -17,14 +17,16 @@ APaintMaterial::APaintMaterial()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> StaticMeshObject(TEXT("StaticMesh'/Game/Meshes/HexMesh.HexMesh'"));
 	InstanceMesh = StaticMeshObject.Object;
 
-	VisibleComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("VisibleComponent"));
-	VisibleComponent->AttachTo(RootComponent);
-	VisibleComponent->SetVisibility(true);
+	MeshComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("VisibleComponent"));
+	MeshComponent->AttachTo(RootComponent);
 
-	VisibleComponent->SetStaticMesh(InstanceMesh);
-
-	// more settings for instanced static mesh to be added
-
+	MeshComponent->SetStaticMesh(InstanceMesh);
+	MeshComponent->SetVisibility(true);
+	MeshComponent->bOwnerNoSee = false;
+	MeshComponent->bCastDynamicShadow = false;
+	MeshComponent->SetHiddenInGame(false);
+	MeshComponent->SetMobility(EComponentMobility::Static);
+	MeshComponent->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned

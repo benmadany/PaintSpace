@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
-#include "Runtime/UMG/Public/UMG.h"
+//#include "Runtime/UMG/Public/UMG.h"
 #include "Leap_NoPI.h"
 #include "PainterController.generated.h"
 
@@ -19,14 +19,14 @@ class PAINTSPACE_API APainterController : public APlayerController
 public:
 	APainterController();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-	TSubclassOf<class UHandMenuWidget> HandMenuWidgetTemplate;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	//TSubclassOf<class UHandMenuWidget> HandMenuWidgetTemplate;
 
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY()
-	UHandMenuWidget* HandMenuWidgetInstance;
+	//UPROPERTY()
+	//UHandMenuWidget* HandMenuWidgetInstance;
 
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
