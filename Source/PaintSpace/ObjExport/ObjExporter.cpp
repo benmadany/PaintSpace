@@ -3,6 +3,7 @@
 #include "PaintSpace.h"
 #include "ObjExporter.h"
 #include "StaticMeshResources.h"
+//#include "Developer/RawMesh/Public/RawMesh.h"
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -33,27 +34,54 @@ bool ObjExporter::ExportObjFile()
 
 	FString ObjString = FString("");
 	ObjString += "g test\n";
-	
+
+	const FStaticMeshLODResources& LODModel = InstancedStaticMeshComponent->StaticMesh->RenderData->LODResources[0];
+	const FPositionVertexBuffer& VertexBuffer = LODModel.PositionVertexBuffer;
+	//FPositionVertexBuffer* VertexBuffer = &InstancedStaticMeshComponent->StaticMesh->RenderData->LODResources[0].PositionVertexBuffer;
+
 	for (FInstancedStaticMeshInstanceData mesh : InstancedStaticMeshComponent->PerInstanceSMData)
 	{
 		FTransform transform = FTransform(mesh.Transform);
 		FVector translation = transform.GetTranslation();
 
-		FPositionVertexBuffer* VertexBuffer = &InstancedStaticMeshComponent->StaticMesh->RenderData->LODResources[0].PositionVertexBuffer;
-		if (VertexBuffer)
+		//if (VertexBuffer)
 		{
-			const int32 VertexCount = VertexBuffer->GetNumVertices();
+			const int32 VertexCount = VertexBuffer.GetNumVertices();
 			for (int32 Index = 0; Index < VertexCount; Index++)
 			{
-				const FVector WorldVertexLocation = translation + VertexBuffer->VertexPosition(Index);
+				const FVector WorldVertexLocation = translation + VertexBuffer.VertexPosition(Index);
 				std::stringstream fmt;
 				fmt << "v " << std::to_string(WorldVertexLocation.X) << " " << std::to_string(WorldVertexLocation.Y) << " " << std::to_string(WorldVertexLocation.Z) << "\n"; // a bit ugly...
 				ObjString += fmt.str().c_str();
 			}
 		}
+		
+		//FRawMesh rawMesh;
+		//InstancedStaticMeshComponent->StaticMesh->SourceModels[0].RawMeshBulkData->LoadRawMesh(rawMesh);
+		FIndexArrayView Indices = LODModel.IndexBuffer.GetArrayView();
+
+		for (int i = 0; i < Indices.Num(); i += 3)
+		{
+			std::stringstream fmt;
+			fmt << "f " << Indices[i + 1] << " " << Indices[i + 2] << " " << Indices[i + 3] << "\n";
+			ObjString += fmt.str().c_str();
+		}
+
+		/*int32 SectionFirstTriIndex = 0;
+		for (TArray<FStaticMeshSection>::TConstIterator SectionIt(LODModel.Sections); SectionIt; ++SectionIt)
+		{
+			const FStaticMeshSection& Section = *SectionIt;
+
+			int32 NextSectionTriIndex = SectionFirstTriIndex + Section.NumTriangles;
+			int32 IndexBufferIdx = (SectionFirstTriIndex)* 3 + Section.FirstIndex;
+
+			int32 Index0 = Indices
+		}*/
+		//FEdModeFoliage::GetStaticMeshVertexColorForHit();
 
 	}
 	
+	// write to file
 	FString name = FString("out");
 
 	std::ofstream outfile ("C:/workSpace/Thesis/PaintSpace/ObjOut.obj");

@@ -33,13 +33,13 @@ APaintMaterial::APaintMaterial()
 void APaintMaterial::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
 void APaintMaterial::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
-	
+
 }
 
