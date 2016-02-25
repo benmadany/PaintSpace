@@ -19,6 +19,8 @@ UPaintBrushComponent::UPaintBrushComponent()
 	PrevFrameID = 0;
 
 	//IndexFingerSocket = FName(*FString("rt_index_endSocket"));
+	ObjExporter ObjExp = ObjExporter();
+	ObjExporterInstance = &ObjExp;
 }
 
 
@@ -78,6 +80,12 @@ void UPaintBrushComponent::CheckHand(Frame frame)
 			// need to include checking for gestures
 			TryPainting(hand);
 		}
+		else if (hand.isLeft())
+		{
+			int HandID = hand.id();
+			if (hand.grabStrength() == 1.0 && LeapController.frame(1).hand(HandID).grabStrength() != 1.0) // temporary, not very accurate
+				ExportObj();
+		}
 	}
 }
 
@@ -105,8 +113,32 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	// spawn static mesh
 	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
+	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
-	FString dbgmsg = FString((SpawnLocation.ToString()));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
+	//FString dbgmsg = FString((SpawnLocation.ToString()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
+
+}
+
+void UPaintBrushComponent::ExportObj()
+{
+	FString dbgmsgstart = FString("Left hand grab, export initiated");
+	FString dbgmsgsucceed = FString("Export successful");
+	FString dbgmsgfail = FString("Error exporting-------------------------------------------------");
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsgstart);
+
+	// ensure we are using the right instanced static mesh
+	ObjExporterInstance->RegisterStaticMeshComponent(PaintMaterialInstance->MeshComponent);
+
+	if (ObjExporterInstance->ExportObjFile())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsgsucceed);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsgfail);
+	}
+	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
 }

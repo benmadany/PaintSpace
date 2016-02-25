@@ -4,6 +4,7 @@
 
 #include "Components/SceneComponent.h"
 #include "Leap_NoPI.h"
+#include "ObjExport/ObjExporter.h" // temp
 #include "PaintBrushComponent.generated.h"
 
 
@@ -26,11 +27,13 @@ public:
 	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
 	
 private:
+	void CheckHand(Leap::Frame frame);
+	void TryPainting(Leap::Hand hand);
+	void ExportObj();
+
 	APaintMaterial* PaintMaterialInstance;
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
 	//FName IndexFingerSocket;
-
-	void CheckHand(Leap::Frame frame);
-	void TryPainting(Leap::Hand hand);
+	ObjExporter* ObjExporterInstance;
 };

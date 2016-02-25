@@ -25,7 +25,7 @@ APaintMaterial::APaintMaterial()
 	MeshComponent->bOwnerNoSee = false;
 	MeshComponent->bCastDynamicShadow = false;
 	MeshComponent->SetHiddenInGame(false);
-	MeshComponent->SetMobility(EComponentMobility::Static);
+	//MeshComponent->SetMobility(EComponentMobility::Static);
 	MeshComponent->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
