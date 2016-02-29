@@ -40,8 +40,10 @@ void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 			ShowMenu = false;
 			for (Hand hand : latestFrame.hands())
 			{
-				if (hand.isLeft()) 
+				if (hand.isLeft() && hand.palmNormal().angleTo(Leap::Vector::down()) <= PI / 4.0f)
 				{
+					//FString dbgmsg = FString("facing forward");
+					//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, dbgmsg);
 					ShowMenu = true;
 				}
 			}
@@ -57,11 +59,11 @@ void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 		//FString dbgmsg = FString("Show Widget");
 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
 	}
-	if (!ShowMenu) 
+	if (!ShowMenu)
 	{
 		SetHiddenInGame(true, true);
 		//FString dbgmsg = FString("Hide Widget");
 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
 	}
-		
+
 }

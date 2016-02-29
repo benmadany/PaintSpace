@@ -96,6 +96,11 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	Finger IndexFinger;
 	for (Finger finger : hand.fingers())
 	{
+		if (finger.type() == Finger::Type::TYPE_THUMB)
+		{
+			if (finger.isExtended()) // too harsh right now
+				return;
+		}
 		if (finger.type() == Finger::Type::TYPE_INDEX)
 		{
 			IndexFinger = finger;
@@ -126,14 +131,14 @@ void UPaintBrushComponent::ExportObj()
 	FString dbgmsgsucceed = FString("Export successful");
 	FString dbgmsgfail = FString("Error exporting-------------------------------------------------");
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsgstart);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Black, dbgmsgstart);
 
 	// ensure we are using the right instanced static mesh
 	ObjExporterInstance->RegisterStaticMeshComponent(PaintMaterialInstance->MeshComponent);
 
 	if (ObjExporterInstance->ExportObjFile())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsgsucceed);
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, dbgmsgsucceed);
 	}
 	else
 	{
