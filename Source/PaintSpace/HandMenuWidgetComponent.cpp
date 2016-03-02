@@ -17,6 +17,7 @@ UHandMenuWidgetComponent::UHandMenuWidgetComponent()
 	PalmFacingPlayer = false;
 	MenuShowing = false;
 	HasLeftHand = false;
+
 }
 
 
@@ -35,7 +36,18 @@ void UHandMenuWidgetComponent::BeginPlay()
 void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	CheckLeapFrame();
+	ChangeMenuState();
 
+/*	if (Widget->IsPlayingAnimation())
+	{
+		FString dbg = FString("test");
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, dbg);
+	}*/
+}
+
+void UHandMenuWidgetComponent::CheckLeapFrame()
+{
 	bool LeftHandSeen = false;
 	if (LeapController.isConnected())
 	{
@@ -44,7 +56,7 @@ void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 		{
 			for (Hand hand : latestFrame.hands())
 			{
-				
+
 				if (hand.isLeft())
 				{
 					LeftHandSeen = true;
@@ -66,14 +78,6 @@ void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickTyp
 			PrevFrameID = latestFrame.id();
 		}
 	}
-	
-	ChangeMenuState();
-
-/*	if (Widget->IsPlayingAnimation())
-	{
-		FString dbg = FString("test");
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, dbg);
-	}*/
 }
 
 void UHandMenuWidgetComponent::ChangeMenuState()
@@ -101,3 +105,13 @@ void UHandMenuWidgetComponent::ChangeMenuState()
 		Widget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
+
+/*void UHandMenuWidgetComponent::OnHMWComponentOverlapBegin(AActor * OtherActor, PrimitiveComponent * OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+
+}
+
+void UHandMenuWidgetComponent::OnHMWComponentOverlapEnd(AActor * OtherActor, PrimitiveComponent * OtherComponent, int32 OtherBodyIndex)
+{
+
+}*/

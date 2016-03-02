@@ -23,7 +23,13 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+/*	UFUNCTION(BlueprintCallable)
+	static void OnHMWComponentOverlapBegin(class AActor* OtherActor, class PrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+	UFUNCTION(BlueprintCallable)
+	static void OnHMWComponentOverlapEnd(class AActor* OtherActor, class PrimitiveComponent* OtherComponent, int32 OtherBodyIndex);*/
+
 private:
+	void CheckLeapFrame();
 	void ChangeMenuState();
 
 	Leap::Controller LeapController;
