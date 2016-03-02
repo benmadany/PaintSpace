@@ -15,3 +15,6 @@ PaintSpace is made for drawing in 3D space using an Oculus Rift and Leap Motion 
 
 ###Examples
 To be added.
+
+###Acknowledgements
+Thanks very much to Getnamo for his UE4 Leap Motion plugin!

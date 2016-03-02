@@ -18,4 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temp")
 	FString TempWidgetName;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	class UWidgetAnimation* ShowAnimationRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	class UWidgetAnimation* HideAnimationRef;
 };

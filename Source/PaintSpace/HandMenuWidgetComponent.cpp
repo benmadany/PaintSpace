@@ -14,7 +14,9 @@ UHandMenuWidgetComponent::UHandMenuWidgetComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	PrevFrameID = 0;
-	ShowMenu = false;
+	PalmFacingPlayer = false;
+	MenuShowing = false;
+	HasLeftHand = false;
 }
 
 
@@ -26,44 +28,76 @@ void UHandMenuWidgetComponent::BeginPlay()
 	{
 		// no menu declared
 	}
+
+	HandMenuWidgetInstance = Cast<UHandMenuWidget>(Widget);
 }
 
 void UHandMenuWidgetComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	bool LeftHandSeen = false;
 	if (LeapController.isConnected())
 	{
 		const Frame latestFrame = LeapController.frame();
 		if (latestFrame.id() != PrevFrameID)
 		{
-			ShowMenu = false;
 			for (Hand hand : latestFrame.hands())
 			{
-				if (hand.isLeft() && hand.palmNormal().angleTo(Leap::Vector::down()) <= PI / 4.0f)
+				
+				if (hand.isLeft())
 				{
-					//FString dbgmsg = FString("facing forward");
-					//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Blue, dbgmsg);
-					ShowMenu = true;
+					LeftHandSeen = true;
+					HasLeftHand = true;
+					if (hand.palmNormal().angleTo(Leap::Vector::down()) <= PI / 4.0f)
+					{
+						PalmFacingPlayer = true;
+					}
+					else
+					{
+						PalmFacingPlayer = false;
+					}
 				}
 			}
-
+			if (!LeftHandSeen)
+			{
+				HasLeftHand = false;
+			}
 			PrevFrameID = latestFrame.id();
 		}
-
 	}
+	
+	ChangeMenuState();
 
-	if (ShowMenu)
+/*	if (Widget->IsPlayingAnimation())
 	{
-		SetHiddenInGame(false, true);
-		//FString dbgmsg = FString("Show Widget");
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
-	}
-	if (!ShowMenu)
-	{
-		SetHiddenInGame(true, true);
-		//FString dbgmsg = FString("Hide Widget");
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
-	}
+		FString dbg = FString("test");
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, dbg);
+	}*/
+}
 
+void UHandMenuWidgetComponent::ChangeMenuState()
+{
+	if (PalmFacingPlayer)
+	{
+		if (!MenuShowing && !Widget->IsPlayingAnimation())
+		{
+			Widget->PlayAnimation(HandMenuWidgetInstance->ShowAnimationRef);
+			MenuShowing = true;
+		}
+	}
+	else
+	{
+		if (MenuShowing && !Widget->IsPlayingAnimation())
+		{
+			Widget->PlayAnimation(HandMenuWidgetInstance->HideAnimationRef);
+			MenuShowing = false;
+		}
+	}
+	if (!HasLeftHand)
+	{
+		MenuShowing = false;
+		PalmFacingPlayer = false;
+		Widget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }

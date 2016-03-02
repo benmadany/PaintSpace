@@ -24,9 +24,14 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+	void ChangeMenuState();
+
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
+	class UHandMenuWidget* HandMenuWidgetInstance;
 
-	bool ShowMenu;
+	bool HasLeftHand;
+	bool PalmFacingPlayer;
+	bool MenuShowing;
 	
 };
