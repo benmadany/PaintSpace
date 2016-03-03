@@ -3,7 +3,6 @@
 #include "PaintSpace.h"
 #include "PaintBrushComponent.h"
 #include "PaintMaterial.h"
-#include "StaticMeshResources.h"
 
 using namespace Leap;
 
@@ -18,10 +17,14 @@ UPaintBrushComponent::UPaintBrushComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	PrevFrameID = 0;
+	ProceduralSectionIndex = 0;
 
 	//IndexFingerSocket = FName(*FString("rt_index_endSocket"));
 	ObjExporter ObjExp = ObjExporter();
 	ObjExporterInstance = &ObjExp;
+
+	LODModel = &Cast<APaintMaterial>(PaintMaterial)->MeshComponent->StaticMesh->RenderData->LODResources[0];
+	VertexBuffer = &LODModel->PositionVertexBuffer;
 }
 
 
@@ -124,12 +127,56 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	// spawn static mesh
 	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
-	
+
+	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
+	if (instances > 1)
+	{
+		GenerateProceduralMesh(PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 2], PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 1]);
+	}
 	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
 	//FString dbgmsg = FString((SpawnLocation.ToString()));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
 
+}
+
+void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh)
+{
+	FTransform PrevTransform = FTransform(PrevMesh.Transform);
+	FTransform CurrentTransform = FTransform(CurrentMesh.Transform);
+	bool forward = true;
+	if (PrevTransform.GetTranslation().Z > CurrentTransform.GetTranslation().Z)
+	{
+		forward = false;
+	}
+
+	TArray<FVector> ProceduralVertices;
+	TArray<int32> ProceduralTriangles;
+	TArray<FVector> FirstPartition;
+	TArray<FVector> SecondPartition;
+
+	for (uint32 i = 0; i < VertexBuffer->GetNumVertices() / 2; i += 4)
+	{
+		if (forward)
+		{
+			FirstPartition.Add(VertexBuffer->VertexPosition(i + 2) + PrevTransform.GetTranslation());
+			FirstPartition.Add(VertexBuffer->VertexPosition(i + 3) + PrevTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i) + CurrentTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i + 1) + CurrentTransform.GetTranslation());
+		}
+		else
+		{
+			FirstPartition.Add(VertexBuffer->VertexPosition(i) + PrevTransform.GetTranslation());
+			FirstPartition.Add(VertexBuffer->VertexPosition(i + 1) + PrevTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i + 2) + CurrentTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i + 3) + CurrentTransform.GetTranslation());
+		}
+	}
+
+	FirstPartition.Append(SecondPartition);
+	ProceduralVertices = FirstPartition;
+	//PaintMaterialInstance->ProceduralMeshComponent->CreateMeshSection(ProceduralSectionIndex, ProceduralVertices, ProceduralTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(),false);
+	ProceduralSectionIndex++;
 }
 
 void UPaintBrushComponent::ExportObj()

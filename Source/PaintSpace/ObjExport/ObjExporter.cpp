@@ -45,7 +45,6 @@ bool ObjExporter::ExportObjFile()
 		FTransform transform = FTransform(mesh.Transform);
 		FVector translation = transform.GetTranslation();
 
-
 		const int32 VertexCount = VertexBuffer.GetNumVertices();
 		for (int32 Index = 0; Index < VertexCount; Index++)
 		{

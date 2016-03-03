@@ -4,6 +4,7 @@
 
 #include "Components/SceneComponent.h"
 #include "Leap_NoPI.h"
+#include "StaticMeshResources.h"
 #include "ObjExport/ObjExporter.h" // temp
 #include "PaintBrushComponent.generated.h"
 
@@ -32,11 +33,15 @@ public:
 private:
 	void CheckHand(Leap::Frame frame);
 	void TryPainting(Leap::Hand hand);
+	void GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh);
 	void ExportObj();
 
-	APaintMaterial* PaintMaterialInstance;
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
+	APaintMaterial* PaintMaterialInstance;
+	const FStaticMeshLODResources* LODModel;
+	const FPositionVertexBuffer* VertexBuffer;
+	int64_t ProceduralSectionIndex;
 	//FName IndexFingerSocket;
 	ObjExporter* ObjExporterInstance;
 };
