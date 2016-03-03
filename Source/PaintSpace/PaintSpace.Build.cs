@@ -8,11 +8,11 @@ public class PaintSpace : ModuleRules
 
     public PaintSpace(TargetInfo Target)
 	{
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "LeapMotion", "Leap", "UMG"/*, "RAWMESH"*/ });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "LeapMotion", "Leap", "Slate", "SlateCore", "UMG", "ProceduralMeshComponent"/*, "RAWMESH"*/ });
 
         PublicIncludePaths.AddRange(new string[] { "LeapMotion/Public" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore"});
+		//PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore"});
 		
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");

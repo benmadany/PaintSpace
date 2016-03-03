@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "ProceduralMeshComponent.h"
 #include "PaintMaterial.generated.h"
 
 UCLASS()
@@ -22,6 +23,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	UInstancedStaticMeshComponent* MeshComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UProceduralMeshComponent* ProceduralMeshComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMesh* InstanceMesh;

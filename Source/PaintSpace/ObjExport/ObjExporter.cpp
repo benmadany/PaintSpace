@@ -39,31 +39,33 @@ bool ObjExporter::ExportObjFile()
 	const FPositionVertexBuffer& VertexBuffer = LODModel.PositionVertexBuffer;
 	//FPositionVertexBuffer* VertexBuffer = &InstancedStaticMeshComponent->StaticMesh->RenderData->LODResources[0].PositionVertexBuffer;
 
+	int MeshCount = 0;
 	for (FInstancedStaticMeshInstanceData mesh : InstancedStaticMeshComponent->PerInstanceSMData)
 	{
 		FTransform transform = FTransform(mesh.Transform);
 		FVector translation = transform.GetTranslation();
 
-		//if (VertexBuffer)
+
+		const int32 VertexCount = VertexBuffer.GetNumVertices();
+		for (int32 Index = 0; Index < VertexCount; Index++)
 		{
-			const int32 VertexCount = VertexBuffer.GetNumVertices();
-			for (int32 Index = 0; Index < VertexCount; Index++)
-			{
-				const FVector WorldVertexLocation = translation + VertexBuffer.VertexPosition(Index);
-				std::stringstream fmt;
-				fmt << "v " << std::to_string(WorldVertexLocation.X) << " " << std::to_string(WorldVertexLocation.Y) << " " << std::to_string(WorldVertexLocation.Z) << "\n"; // a bit ugly...
-				ObjString += fmt.str().c_str();
-			}
+			//FString dbgmsg = FString(VertexBuffer.VertexPosition(Index).ToString());
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *dbgmsg);
+			const FVector WorldVertexLocation = translation + VertexBuffer.VertexPosition(Index) * FVector(0.01f, 0.01f, 0.05f);
+			std::stringstream fmt;
+			fmt << "v " << std::to_string(WorldVertexLocation.X) << " " << std::to_string(WorldVertexLocation.Y) << " " << std::to_string(WorldVertexLocation.Z) << "\n"; // a bit ugly...
+			ObjString += fmt.str().c_str();
 		}
-		
+
 		//FRawMesh rawMesh;
 		//InstancedStaticMeshComponent->StaticMesh->SourceModels[0].RawMeshBulkData->LoadRawMesh(rawMesh);
 		FIndexArrayView Indices = LODModel.IndexBuffer.GetArrayView();
 
+		int IndexOffset = VertexCount * MeshCount;
 		for (int i = 0; i < Indices.Num(); i += 3)
 		{
 			std::stringstream fmt;
-			fmt << "f " << Indices[i + 1] << " " << Indices[i + 2] << " " << Indices[i + 3] << "\n";
+			fmt << "f " << Indices[i] + 1 + IndexOffset << " " << Indices[i + 1] + 1 + IndexOffset << " " << Indices[i + 2] + 1 + IndexOffset << "\n";
 			ObjString += fmt.str().c_str();
 		}
 
@@ -79,12 +81,13 @@ bool ObjExporter::ExportObjFile()
 		}*/
 		//FEdModeFoliage::GetStaticMeshVertexColorForHit();
 
+		MeshCount++;
 	}
-	
+
 	// write to file
 	FString name = FString("out");
 
-	std::ofstream outfile ("C:/workSpace/Thesis/PaintSpace/ObjOut.obj");
+	std::ofstream outfile("C:/workSpace/Thesis/PaintSpace/ObjOut.obj");
 	if (outfile.is_open())
 	{
 		outfile << TCHAR_TO_ANSI(*ObjString);
