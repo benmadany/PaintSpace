@@ -3,6 +3,7 @@
 #include "PaintSpace.h"
 #include "PaintBrushComponent.h"
 #include "PaintMaterial.h"
+#include "StaticMeshResources.h"
 
 using namespace Leap;
 
@@ -70,6 +71,11 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 }
 
+void UPaintBrushComponent::ClearAllStrokes()
+{
+	PaintMaterialInstance->MeshComponent->ClearInstances();
+}
+
 
 void UPaintBrushComponent::CheckHand(Frame frame)
 {
@@ -118,6 +124,7 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	// spawn static mesh
 	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
+	
 	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
 	//FString dbgmsg = FString((SpawnLocation.ToString()));

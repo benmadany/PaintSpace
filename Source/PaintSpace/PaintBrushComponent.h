@@ -23,6 +23,9 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Instanced Static Mesh")
+	void ClearAllStrokes();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
 	
