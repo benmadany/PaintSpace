@@ -39,8 +39,8 @@ private:
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
 	APaintMaterial* PaintMaterialInstance;
-	const FStaticMeshLODResources* LODModel;
-	const FPositionVertexBuffer* VertexBuffer;
+	FStaticMeshLODResources* LODModel;
+	FPositionVertexBuffer* VertexBuffer;
 	int64_t ProceduralSectionIndex;
 	//FName IndexFingerSocket;
 	ObjExporter* ObjExporterInstance;

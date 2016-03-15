@@ -23,8 +23,6 @@ UPaintBrushComponent::UPaintBrushComponent()
 	ObjExporter ObjExp = ObjExporter();
 	ObjExporterInstance = &ObjExp;
 
-	LODModel = &Cast<APaintMaterial>(PaintMaterial)->MeshComponent->StaticMesh->RenderData->LODResources[0];
-	VertexBuffer = &LODModel->PositionVertexBuffer;
 }
 
 
@@ -40,6 +38,8 @@ void UPaintBrushComponent::BeginPlay()
 		{
 			// spawn instanced static mesh actor, better performance than individual actors
 			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
+			LODModel = &PaintMaterialInstance->MeshComponent->StaticMesh->RenderData->LODResources[0];
+			VertexBuffer = &LODModel->PositionVertexBuffer;
 		}
 	}
 
@@ -129,10 +129,10 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
 
 	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
-	if (instances > 1)
+	/*if (instances > 1)
 	{
 		GenerateProceduralMesh(PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 2], PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 1]);
-	}
+	}*/
 	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
 	//FString dbgmsg = FString((SpawnLocation.ToString()));
@@ -142,6 +142,8 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 
 void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh)
 {
+	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);
+
 	FTransform PrevTransform = FTransform(PrevMesh.Transform);
 	FTransform CurrentTransform = FTransform(CurrentMesh.Transform);
 	bool forward = true;
@@ -152,30 +154,41 @@ void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceDa
 
 	TArray<FVector> ProceduralVertices;
 	TArray<int32> ProceduralTriangles;
-	TArray<FVector> FirstPartition;
+	TArray<FColor> ProceduralColors;
 	TArray<FVector> SecondPartition;
 
 	for (uint32 i = 0; i < VertexBuffer->GetNumVertices() / 2; i += 4)
 	{
 		if (forward)
 		{
-			FirstPartition.Add(VertexBuffer->VertexPosition(i + 2) + PrevTransform.GetTranslation());
-			FirstPartition.Add(VertexBuffer->VertexPosition(i + 3) + PrevTransform.GetTranslation());
-			SecondPartition.Add(VertexBuffer->VertexPosition(i) + CurrentTransform.GetTranslation());
-			SecondPartition.Add(VertexBuffer->VertexPosition(i + 1) + CurrentTransform.GetTranslation());
+			ProceduralVertices.Add((VertexBuffer->VertexPosition(i + 2) + PrevTransform.GetTranslation()) * ScaleVector);
+			ProceduralVertices.Add((VertexBuffer->VertexPosition(i + 3) + PrevTransform.GetTranslation()) * ScaleVector);
+			SecondPartition.Add((VertexBuffer->VertexPosition(i) + CurrentTransform.GetTranslation()) * ScaleVector);
+			SecondPartition.Add((VertexBuffer->VertexPosition(i + 1) + CurrentTransform.GetTranslation()) * ScaleVector);
 		}
 		else
 		{
-			FirstPartition.Add(VertexBuffer->VertexPosition(i) + PrevTransform.GetTranslation());
-			FirstPartition.Add(VertexBuffer->VertexPosition(i + 1) + PrevTransform.GetTranslation());
-			SecondPartition.Add(VertexBuffer->VertexPosition(i + 2) + CurrentTransform.GetTranslation());
-			SecondPartition.Add(VertexBuffer->VertexPosition(i + 3) + CurrentTransform.GetTranslation());
+			ProceduralVertices.Add((VertexBuffer->VertexPosition(i) + PrevTransform.GetTranslation()) * ScaleVector);
+			ProceduralVertices.Add((VertexBuffer->VertexPosition(i + 1) + PrevTransform.GetTranslation()) * ScaleVector);
+			SecondPartition.Add((VertexBuffer->VertexPosition(i + 2) + CurrentTransform.GetTranslation()) * ScaleVector);
+			SecondPartition.Add((VertexBuffer->VertexPosition(i + 3) + CurrentTransform.GetTranslation()) * ScaleVector);
 		}
 	}
+	ProceduralVertices.Append(SecondPartition);
 
-	FirstPartition.Append(SecondPartition);
-	ProceduralVertices = FirstPartition;
-	//PaintMaterialInstance->ProceduralMeshComponent->CreateMeshSection(ProceduralSectionIndex, ProceduralVertices, ProceduralTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(),false);
+	for (int i = 1; i < ProceduralVertices.Num() + 1; i++)
+	{
+		ProceduralTriangles.Add(i);
+		(i % (ProceduralVertices.Num() / 2) == 0) ? ProceduralTriangles.Add(i - (ProceduralVertices.Num() / 2) + 1) : ProceduralTriangles.Add(i + 1);
+		(i > ProceduralVertices.Num() / 2) ? ProceduralTriangles.Add(i % (ProceduralVertices.Num() / 2) + 1) : ProceduralTriangles.Add(i + ProceduralVertices.Num() / 2);
+	}
+
+	for (int i = 0; i < ProceduralVertices.Num(); i++)
+	{
+		ProceduralColors.Add(FColor::Red);
+	}
+
+	PaintMaterialInstance->ProceduralMeshComponent->CreateMeshSection(ProceduralSectionIndex, ProceduralVertices, ProceduralTriangles, TArray<FVector>(), TArray<FVector2D>(), ProceduralColors, TArray<FProcMeshTangent>(), false);
 	ProceduralSectionIndex++;
 }
 
