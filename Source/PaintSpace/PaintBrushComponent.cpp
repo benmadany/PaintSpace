@@ -38,6 +38,8 @@ void UPaintBrushComponent::BeginPlay()
 		{
 			// spawn instanced static mesh actor, better performance than individual actors
 			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
+			//PaintMaterialInstance->ProceduralMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//PaintMaterialInstance->ProceduralMeshComponent->SetMaterial(0, PaintMaterialInstance->InstanceMesh->Materials[0]->GetMaterial());
 			LODModel = &PaintMaterialInstance->MeshComponent->StaticMesh->RenderData->LODResources[0];
 			VertexBuffer = &LODModel->PositionVertexBuffer;
 		}
@@ -161,17 +163,17 @@ void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceDa
 	{
 		if (forward)
 		{
-			ProceduralVertices.Add((VertexBuffer->VertexPosition(i + 2) + PrevTransform.GetTranslation()) * ScaleVector);
-			ProceduralVertices.Add((VertexBuffer->VertexPosition(i + 3) + PrevTransform.GetTranslation()) * ScaleVector);
-			SecondPartition.Add((VertexBuffer->VertexPosition(i) + CurrentTransform.GetTranslation()) * ScaleVector);
-			SecondPartition.Add((VertexBuffer->VertexPosition(i + 1) + CurrentTransform.GetTranslation()) * ScaleVector);
+			ProceduralVertices.Add(VertexBuffer->VertexPosition(i + 2) * ScaleVector + PrevTransform.GetTranslation());
+			ProceduralVertices.Add(VertexBuffer->VertexPosition(i + 3) * ScaleVector + PrevTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i) * ScaleVector + CurrentTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i + 1) * ScaleVector + CurrentTransform.GetTranslation());
 		}
 		else
 		{
-			ProceduralVertices.Add((VertexBuffer->VertexPosition(i) + PrevTransform.GetTranslation()) * ScaleVector);
-			ProceduralVertices.Add((VertexBuffer->VertexPosition(i + 1) + PrevTransform.GetTranslation()) * ScaleVector);
-			SecondPartition.Add((VertexBuffer->VertexPosition(i + 2) + CurrentTransform.GetTranslation()) * ScaleVector);
-			SecondPartition.Add((VertexBuffer->VertexPosition(i + 3) + CurrentTransform.GetTranslation()) * ScaleVector);
+			ProceduralVertices.Add(VertexBuffer->VertexPosition(i) * ScaleVector + PrevTransform.GetTranslation());
+			ProceduralVertices.Add(VertexBuffer->VertexPosition(i + 1) * ScaleVector + PrevTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i + 2) * ScaleVector + CurrentTransform.GetTranslation());
+			SecondPartition.Add(VertexBuffer->VertexPosition(i + 3) * ScaleVector + CurrentTransform.GetTranslation());
 		}
 	}
 	ProceduralVertices.Append(SecondPartition);
@@ -187,7 +189,6 @@ void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceDa
 	{
 		ProceduralColors.Add(FColor::Red);
 	}
-
 	PaintMaterialInstance->ProceduralMeshComponent->CreateMeshSection(ProceduralSectionIndex, ProceduralVertices, ProceduralTriangles, TArray<FVector>(), TArray<FVector2D>(), ProceduralColors, TArray<FProcMeshTangent>(), false);
 	ProceduralSectionIndex++;
 }
