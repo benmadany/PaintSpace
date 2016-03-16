@@ -119,18 +119,22 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 		}
 	}
 
-	// Use skeletal mesh socket to get accurate finger position
-	//const FVector SpawnLocation = (AttachParent->GetSocketLocation(IndexFingerSocket));
+	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
+
 	const FVector SpawnLocation = GetComponentLocation();
 
-	// spawn rotation
-	const FRotator SpawnRotation = SpawnLocation.Rotation();
+	FRotator SpawnRotation = SpawnLocation.Rotation();
+
+	if (instances > 1)
+	{
+		FVector NormalizedDirection = SpawnLocation - FTransform(PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 2].Transform).GetTranslation().Normalize();
+		SpawnRotation = (NormalizedDirection.Rotation());
+	}
 
 	// spawn static mesh
-	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);
+	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
 
-	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
 	/*if (instances > 1)
 	{
 		GenerateProceduralMesh(PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 2], PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 1]);
@@ -212,6 +216,5 @@ void UPaintBrushComponent::ExportObj()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsgfail);
 	}
-	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
 }
