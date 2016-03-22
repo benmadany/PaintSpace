@@ -31,8 +31,8 @@ public:
 	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
 	
 private:
-	void CheckHand(Leap::Frame frame);
-	void TryPainting(Leap::Hand hand);
+	void ProcessLeapFrame(Leap::Frame Frame);
+	void Paint();
 	void GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh);
 	void ExportObj();
 

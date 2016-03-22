@@ -4,7 +4,7 @@
 #include "PaintBrushComponent.h"
 #include "PaintMaterial.h"
 
-using namespace Leap;
+//using namespace Leap;
 
 // This class should be attached to some scene component in order to provide paint functionality based on sockets.
 
@@ -16,7 +16,7 @@ UPaintBrushComponent::UPaintBrushComponent()
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
-	PrevFrameID = 0;
+	PrevFrameID = -1;
 	ProceduralSectionIndex = 0;
 
 	//IndexFingerSocket = FName(*FString("rt_index_endSocket"));
@@ -45,15 +45,13 @@ void UPaintBrushComponent::BeginPlay()
 		}
 	}
 
-	if (GEngine->HMDDevice.IsValid())
+	/*if (GEngine->HMDDevice.IsValid())
 	{
 		//IHeadMountedDisplay* HMD = GEngine->HMDDevice.Get();
 		FString vrmsg = FString(TEXT("HMD Detected, optimizing controls."));
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, vrmsg);
 		LeapController.setPolicy(Controller::PolicyFlag::POLICY_OPTIMIZE_HMD);
-	}
-
-	//IndexFingerSocket = AttachSocketName;
+	}*/
 }
 
 
@@ -64,12 +62,12 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if (LeapController.isConnected())
 	{
-		const Frame latestFrame = LeapController.frame();
-		if (latestFrame.id() != PrevFrameID)
+		const Leap::Frame LatestFrame = LeapController.frame();
+		if (LatestFrame.id() != PrevFrameID)
 		{
-			CheckHand(latestFrame);
+			ProcessLeapFrame(LatestFrame);
 
-			PrevFrameID = latestFrame.id();
+			PrevFrameID = LatestFrame.id();
 		}
 
 	}
@@ -82,43 +80,33 @@ void UPaintBrushComponent::ClearAllStrokes()
 }
 
 
-void UPaintBrushComponent::CheckHand(Frame frame)
+void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame)
 {
-	for (Hand hand : frame.hands())
+	for (Leap::Hand Hand : Frame.hands())
 	{
-		if (hand.isRight())
+		if (Hand.isRight())
 		{
-			// need to include checking for gestures
-			TryPainting(hand);
+			for (Leap::Finger Finger : Hand.fingers())
+			{
+				if (Finger.type() == Leap::Finger::Type::TYPE_THUMB)
+				{
+					if (!Finger.isExtended() && Hand.grabStrength() < 0.5f) // too harsh right now
+						Paint();
+				}
+			}
 		}
-		else if (hand.isLeft())
+		else if (Hand.isLeft())
 		{
-			int HandID = hand.id();
-			if (hand.grabStrength() == 1.0 && LeapController.frame(1).hand(HandID).grabStrength() != 1.0) // temporary, not very accurate
-				ExportObj();
+			int HandID = Hand.id();
+			//if (Hand.grabStrength() == 1.0 && LeapController.frame(1).hand(HandID).grabStrength() != 1.0) // temporary, not very accurate
+				//ExportObj();
 		}
 	}
 }
 
 
-void UPaintBrushComponent::TryPainting(Hand hand)
+void UPaintBrushComponent::Paint()
 {
-
-	Finger IndexFinger;
-	for (Finger finger : hand.fingers())
-	{
-		if (finger.type() == Finger::Type::TYPE_THUMB)
-		{
-			if (finger.isExtended()) // too harsh right now
-				return;
-		}
-		if (finger.type() == Finger::Type::TYPE_INDEX)
-		{
-			IndexFinger = finger;
-			break;
-		}
-	}
-
 	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
 
 	const FVector SpawnLocation = GetComponentLocation();
@@ -145,6 +133,7 @@ void UPaintBrushComponent::TryPainting(Hand hand)
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
 
 }
+
 
 void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh)
 {
@@ -197,13 +186,14 @@ void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceDa
 	ProceduralSectionIndex++;
 }
 
+
 void UPaintBrushComponent::ExportObj()
 {
 	FString dbgmsgstart = FString("Left hand grab, export initiated");
 	FString dbgmsgsucceed = FString("Export successful");
 	FString dbgmsgfail = FString("Error exporting-------------------------------------------------");
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Black, dbgmsgstart);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, dbgmsgstart);
 
 	// ensure we are using the right instanced static mesh
 	ObjExporterInstance->RegisterStaticMeshComponent(PaintMaterialInstance->MeshComponent);
