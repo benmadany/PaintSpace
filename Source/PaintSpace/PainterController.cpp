@@ -9,7 +9,7 @@
 APainterController::APainterController()
 	: Super()
 {
-	
+
 	PrevFrameID = -1;
 	RightHandID = -1;
 	LeftHandID = -1;
@@ -26,6 +26,8 @@ void APainterController::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, vrmsg);
 		LeapController.setPolicy(Leap::Controller::PolicyFlag::POLICY_OPTIMIZE_HMD);
 	}
+
+	Character = GetPawn();
 }
 
 void APainterController::Tick(float DeltaSeconds)
@@ -37,7 +39,7 @@ void APainterController::Tick(float DeltaSeconds)
 		const Leap::Frame LatestFrame = LeapController.frame();
 		if (LatestFrame.id() != PrevFrameID)
 		{
-			ProcessLeapFrame(LatestFrame);
+			ProcessLeapFrame(LatestFrame, DeltaSeconds);
 
 			PrevFrameID = LatestFrame.id();
 		}
@@ -46,7 +48,7 @@ void APainterController::Tick(float DeltaSeconds)
 }
 
 
-void APainterController::ProcessLeapFrame(Leap::Frame Frame)
+void APainterController::ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds)
 {
 	Leap::HandList HandList = Frame.hands();
 
@@ -76,18 +78,64 @@ void APainterController::ProcessLeapFrame(Leap::Frame Frame)
 				}
 			}
 		}
-		
+
 		// arbitrary grab strength float for now
 		if (RightHand.grabStrength() > 0.8f && LeftHand.grabStrength() > 0.8f)
 		{
-			float RYChange = RightHand.translation(PrevFrame).y;
-			float LYChange = LeftHand.translation(PrevFrame).y;
+			Leap::Vector RChange = RightHand.translation(PrevFrame);
+			Leap::Vector LChange = LeftHand.translation(PrevFrame);
 
-			if (RYChange > 0 && LYChange >0)
+			// forward
+			if (RChange.y > 0 && LChange.y > 0)
 			{
-				GetPawn()->SetActorLocation(GetPawn()->GetActorLocation() + FVector(((RYChange + LYChange) / 2), 0.0f, 0.0f));
-				FString dbgmsg = FString::SanitizeFloat((RYChange + LYChange) / 2);
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, dbgmsg);
+				Character->SetActorLocation(Character->GetActorLocation() + GetControlRotation().RotateVector(FVector((RChange.y + LChange.y) / -2, 0.0f, 0.0f)));
+
+				//FString dbgmsg = FString::SanitizeFloat((RChange.y + LChange.y) / 2);
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, dbgmsg);
+			}
+
+			// backward
+			if (RChange.y < 0 && LChange.y < 0)
+			{
+				Character->SetActorLocation(Character->GetActorLocation() + GetControlRotation().RotateVector(FVector((RChange.y + LChange.y) / -2, 0.0f, 0.0f)));
+			}
+
+			// left
+			if (RChange.x > 0 && LChange.x > 0)
+			{
+				Character->SetActorLocation(Character->GetActorLocation() + GetControlRotation().RotateVector(FVector(0.0f, (RChange.x + LChange.x) / 2, 0.0f)));
+			}
+
+			// right
+			if (RChange.x < 0 && LChange.x < 0)
+			{
+				Character->SetActorLocation(Character->GetActorLocation() + GetControlRotation().RotateVector(FVector(0.0f, (RChange.x + LChange.x) / 2, 0.0f)));
+			}
+
+			// down
+			if (RChange.z > 0 && LChange.z > 0)
+			{
+				Character->SetActorLocation(Character->GetActorLocation() + GetControlRotation().RotateVector(FVector(0.0f, 0.0f, (RChange.z + LChange.z) / 2)));
+			}
+
+			// up
+			if (RChange.z < 0 && LChange.z < 0)
+			{
+				Character->SetActorLocation(Character->GetActorLocation() + GetControlRotation().RotateVector(FVector(0.0f, 0.0f, (RChange.z + LChange.z) / 2)));
+			}
+
+			// rotation left
+			if (RChange.y > 0 && LChange.y < 0)
+			{
+				FRotator NewRotation = GetControlRotation() + FRotator(0.0f, (RChange.y + -LChange.y) / 4, 0.0f);
+				SetControlRotation(NewRotation);
+			}
+
+			// rotation right
+			if (RChange.y < 0 && LChange.y > 0)
+			{
+				FRotator NewRotation = GetControlRotation() - FRotator(0.0f, (-RChange.y + LChange.y) / 4, 0.0f);
+				SetControlRotation(NewRotation);
 			}
 		}
 

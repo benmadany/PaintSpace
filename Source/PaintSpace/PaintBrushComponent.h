@@ -31,13 +31,14 @@ public:
 	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
 	
 private:
-	void ProcessLeapFrame(Leap::Frame Frame);
+	void ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds);
 	void Paint();
 	void GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh);
 	void ExportObj();
 
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
+	float Delay;
 	APaintMaterial* PaintMaterialInstance;
 	FStaticMeshLODResources* LODModel;
 	FPositionVertexBuffer* VertexBuffer;

@@ -23,6 +23,7 @@ UPaintBrushComponent::UPaintBrushComponent()
 	ObjExporter ObjExp = ObjExporter();
 	ObjExporterInstance = &ObjExp;
 
+	Delay = 0.0f;
 }
 
 
@@ -65,7 +66,7 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		const Leap::Frame LatestFrame = LeapController.frame();
 		if (LatestFrame.id() != PrevFrameID)
 		{
-			ProcessLeapFrame(LatestFrame);
+			ProcessLeapFrame(LatestFrame, DeltaTime);
 
 			PrevFrameID = LatestFrame.id();
 		}
@@ -80,20 +81,43 @@ void UPaintBrushComponent::ClearAllStrokes()
 }
 
 
-void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame)
+void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds)
 {
 	for (Leap::Hand Hand : Frame.hands())
 	{
 		if (Hand.isRight())
 		{
+			Leap::Finger Thumb;
+			Leap::Finger Index;
+
 			for (Leap::Finger Finger : Hand.fingers())
 			{
 				if (Finger.type() == Leap::Finger::Type::TYPE_THUMB)
 				{
-					if (!Finger.isExtended() && Hand.grabStrength() < 0.5f) // too harsh right now
-						Paint();
+					Thumb = Finger;
+				}
+				if (Finger.type() == Leap::Finger::Type::TYPE_INDEX)
+				{
+					Index = Finger;
 				}
 			}
+			if (Thumb.isValid() && Index.isValid())
+			{
+				if (!Thumb.isExtended() && Index.isExtended() && Hand.grabStrength() < 0.2f)
+				{
+					if (Delay < 0.5f)
+					{
+						Delay += DeltaSeconds;
+					}
+					else {
+						Paint();
+					}
+				}
+				else
+				{
+					Delay = 0.0f;
+				}
+			}			
 		}
 		else if (Hand.isLeft())
 		{

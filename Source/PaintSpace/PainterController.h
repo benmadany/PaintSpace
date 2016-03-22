@@ -23,11 +23,13 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
-	void ProcessLeapFrame(Leap::Frame Frame);
+	void ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds);
 
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
 	int64_t RightHandID;
 	int64_t LeftHandID;
+
+	APawn* Character;
 	
 };
