@@ -23,6 +23,8 @@ UPaintBrushComponent::UPaintBrushComponent()
 	ObjExporter ObjExp = ObjExporter();
 	ObjExporterInstance = &ObjExp;
 
+	PreviousLocation = FVector(0, 0, 0);
+
 	Delay = 0.0f;
 }
 
@@ -117,7 +119,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 				{
 					Delay = 0.0f;
 				}
-			}			
+			}
 		}
 		else if (Hand.isLeft())
 		{
@@ -135,12 +137,12 @@ void UPaintBrushComponent::Paint()
 
 	const FVector SpawnLocation = GetComponentLocation();
 
-	FRotator SpawnRotation = SpawnLocation.Rotation();
+	FRotator SpawnRotation = FRotator(0,0,0);
 
-	if (instances > 1)
+	if (instances > 0)
 	{
-		FVector NormalizedDirection = SpawnLocation - FTransform(PaintMaterialInstance->MeshComponent->PerInstanceSMData[instances - 2].Transform).GetTranslation().Normalize();
-		SpawnRotation = (NormalizedDirection.Rotation());
+		FVector Direction = SpawnLocation - PreviousLocation;
+		SpawnRotation = FRotationMatrix::MakeFromZ(Direction).Rotator();
 	}
 
 	// spawn static mesh
@@ -155,6 +157,8 @@ void UPaintBrushComponent::Paint()
 
 	//FString dbgmsg = FString((SpawnLocation.ToString()));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
+
+	PreviousLocation = SpawnLocation;
 
 }
 

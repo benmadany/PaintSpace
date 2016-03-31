@@ -42,6 +42,7 @@ private:
 	APaintMaterial* PaintMaterialInstance;
 	FStaticMeshLODResources* LODModel;
 	FPositionVertexBuffer* VertexBuffer;
+	FVector PreviousLocation;
 	int64_t ProceduralSectionIndex;
 	//FName IndexFingerSocket;
 	ObjExporter* ObjExporterInstance;
