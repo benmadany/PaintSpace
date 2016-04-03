@@ -15,7 +15,7 @@ class PAINTSPACE_API UHandMenuWidget : public UUserWidget
 	
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Temp")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Other")
 	FString TempWidgetName;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")

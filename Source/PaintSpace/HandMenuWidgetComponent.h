@@ -23,9 +23,9 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-/*	UFUNCTION(BlueprintCallable)
+/*	UFUNCTION(BlueprintCallable, Category = "Event")
 	static void OnHMWComponentOverlapBegin(class AActor* OtherActor, class PrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Event")
 	static void OnHMWComponentOverlapEnd(class AActor* OtherActor, class PrimitiveComponent* OtherComponent, int32 OtherBodyIndex);*/
 
 private:
@@ -35,6 +35,8 @@ private:
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
 	class UHandMenuWidget* HandMenuWidgetInstance;
+	UHandMenuWidgetComponent* HMWComponentParent;
+	TArray<UHandMenuWidgetComponent*> HMWComponentChildren;
 
 	bool HasLeftHand;
 	bool PalmFacingPlayer;

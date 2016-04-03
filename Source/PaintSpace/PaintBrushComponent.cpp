@@ -19,7 +19,6 @@ UPaintBrushComponent::UPaintBrushComponent()
 	PrevFrameID = -1;
 	ProceduralSectionIndex = 0;
 
-	//IndexFingerSocket = FName(*FString("rt_index_endSocket"));
 	ObjExporter ObjExp = ObjExporter();
 	ObjExporterInstance = &ObjExp;
 
@@ -142,6 +141,7 @@ void UPaintBrushComponent::Paint()
 	if (instances > 0)
 	{
 		FVector Direction = SpawnLocation - PreviousLocation;
+		// MakeFromZ because we only rotate about Z axis (yaw)
 		SpawnRotation = FRotationMatrix::MakeFromZ(Direction).Rotator();
 	}
 
