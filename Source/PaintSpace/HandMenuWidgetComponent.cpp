@@ -84,7 +84,7 @@ void UHandMenuWidgetComponent::ChangeMenuState()
 {
 	if (PalmFacingPlayer)
 	{
-		if (!MenuShowing && !Widget->IsPlayingAnimation())
+		if (!MenuShowing && !Widget->IsPlayingAnimation() && HandMenuWidgetInstance->ShowAnimationRef)
 		{
 			Widget->PlayAnimation(HandMenuWidgetInstance->ShowAnimationRef);
 			MenuShowing = true;
@@ -92,7 +92,7 @@ void UHandMenuWidgetComponent::ChangeMenuState()
 	}
 	else
 	{
-		if (MenuShowing && !Widget->IsPlayingAnimation())
+		if (MenuShowing && !Widget->IsPlayingAnimation() && HandMenuWidgetInstance->HideAnimationRef)
 		{
 			Widget->PlayAnimation(HandMenuWidgetInstance->HideAnimationRef);
 			MenuShowing = false;
