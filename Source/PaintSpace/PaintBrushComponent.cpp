@@ -78,7 +78,10 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UPaintBrushComponent::ClearAllStrokes()
 {
-	PaintMaterialInstance->MeshComponent->ClearInstances();
+	if (PaintMaterialInstance)
+	{
+		PaintMaterialInstance->MeshComponent->ClearInstances();
+	}
 }
 
 

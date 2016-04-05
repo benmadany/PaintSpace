@@ -31,9 +31,15 @@ public:
 
 private:
 	void CheckLeapFrame();
+	void DetermineVisibility();
+	void DetermineLocation();
 
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
+	UMaterialInstanceDynamic* DynamicMat;
 	
-	
+	float Opacity;
+	bool PalmFacingPlayer;
+	bool ShowMenu;
+	bool HasLeftHand;
 };
