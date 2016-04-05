@@ -11,7 +11,7 @@ PaintSpace is made for drawing in 3D space using an Oculus Rift and Leap Motion 
 - Finally, the culmination of the above in some "painting" that demonstrates value either as a resource or artistically, and showcases the capabilities of the application.
 
 ###In Development:
-- [ ] 3D Hand-based UI with multilayered menus
+- [x] 3D Hand-based UI with multilayered menus
 - [x] Gesture based movement in scene and additional controls
 - [x] Exporting of drawn objects as .obj file
 - [ ] Improved "drawing" (placement and appearance of static meshes)
