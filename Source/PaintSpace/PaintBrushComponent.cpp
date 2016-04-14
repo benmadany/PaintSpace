@@ -85,6 +85,12 @@ void UPaintBrushComponent::ClearAllStrokes()
 }
 
 
+void UPaintBrushComponent::ExportObjBP()
+{
+	ExportObj();
+}
+
+
 void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds)
 {
 	for (Leap::Hand Hand : Frame.hands())
@@ -122,12 +128,6 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 					Delay = 0.0f;
 				}
 			}
-		}
-		else if (Hand.isLeft())
-		{
-			int HandID = Hand.id();
-			//if (Hand.grabStrength() == 1.0 && LeapController.frame(1).hand(HandID).grabStrength() != 1.0) // temporary, not very accurate
-				//ExportObj();
 		}
 	}
 }
@@ -220,11 +220,9 @@ void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceDa
 
 void UPaintBrushComponent::ExportObj()
 {
-	FString dbgmsgstart = FString("Left hand grab, export initiated");
 	FString dbgmsgsucceed = FString("Export successful");
-	FString dbgmsgfail = FString("Error exporting-------------------------------------------------");
+	FString dbgmsgfail = FString("-Error exporting-");
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, dbgmsgstart);
 
 	// ensure we are using the right instanced static mesh
 	ObjExporterInstance->RegisterStaticMeshComponent(PaintMaterialInstance->MeshComponent);

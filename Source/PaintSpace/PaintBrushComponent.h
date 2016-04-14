@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Instanced Static Mesh")
 	void ClearAllStrokes();
 
+	UFUNCTION(BlueprintCallable, Category = "Export")
+	void ExportObjBP();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
 	

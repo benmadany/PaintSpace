@@ -149,7 +149,7 @@ void UTouchMenuComponent::ExpandMenu()
 		for (TSubclassOf<ATouchMenuItem> Child : ChildTemplates)
 		{
 			ATouchMenuItem* ChildInstance = GetWorld()->SpawnActor<ATouchMenuItem>(Child);
-			ChildInstance->SetLocationOffset(FVector(0, 6, 5 * Children.Num()));
+			ChildInstance->SetLocationOffset(FVector(0, 7, -5 + (10 * Children.Num())));
 			Children.Add(ChildInstance);
 		}
 
