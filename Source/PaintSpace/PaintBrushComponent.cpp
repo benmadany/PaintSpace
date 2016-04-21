@@ -47,6 +47,11 @@ void UPaintBrushComponent::BeginPlay()
 		}
 	}
 
+	if (SprayPaintFX)
+	{
+		SprayPaintComponent = UGameplayStatics::SpawnEmitterAttached(SprayPaintFX, this, FName("rt_index_endSocket"),FVector(0,0,0),FRotator(0,0,0),EAttachLocation::Type::KeepRelativeOffset,false);
+	}
+
 	/*if (GEngine->HMDDevice.IsValid())
 	{
 		//IHeadMountedDisplay* HMD = GEngine->HMDDevice.Get();
@@ -151,6 +156,10 @@ void UPaintBrushComponent::Paint()
 	// spawn static mesh
 	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
+
+
+
+
 
 	/*if (instances > 1)
 	{

@@ -5,7 +5,8 @@
 #include "Components/SceneComponent.h"
 #include "Leap_NoPI.h"
 #include "StaticMeshResources.h"
-#include "ObjExport/ObjExporter.h" // temp
+#include "ParticleDefinitions.h"
+#include "ObjExport/ObjExporter.h"
 #include "PaintBrushComponent.generated.h"
 
 
@@ -32,6 +33,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class APaintMaterial> PaintMaterial; // template for PaintMaterialInstance
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* SprayPaintFX;
 	
 private:
 	void ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds);
@@ -47,6 +51,6 @@ private:
 	FPositionVertexBuffer* VertexBuffer;
 	FVector PreviousLocation;
 	int64_t ProceduralSectionIndex;
-	//FName IndexFingerSocket;
+	UParticleSystemComponent* SprayPaintComponent;
 	ObjExporter* ObjExporterInstance;
 };
