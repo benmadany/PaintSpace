@@ -36,10 +36,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UParticleSystem* SprayPaintFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UParticleSystem* PenFX; // experimental pen-like drawing
 	
 private:
 	void ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds);
-	void Paint();
+	void MeshPaint();
+	void SprayPaint(bool Enable);
 	void GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh);
 	void ExportObj();
 
@@ -52,5 +56,7 @@ private:
 	FVector PreviousLocation;
 	int64_t ProceduralSectionIndex;
 	UParticleSystemComponent* SprayPaintComponent;
+	bool SprayPainting;
+	UParticleSystemComponent* PenComponent;
 	ObjExporter* ObjExporterInstance;
 };

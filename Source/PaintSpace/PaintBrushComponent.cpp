@@ -24,6 +24,8 @@ UPaintBrushComponent::UPaintBrushComponent()
 
 	PreviousLocation = FVector(0, 0, 0);
 
+	SprayPainting = false;
+
 	Delay = 0.0f;
 }
 
@@ -50,15 +52,11 @@ void UPaintBrushComponent::BeginPlay()
 	if (SprayPaintFX)
 	{
 		SprayPaintComponent = UGameplayStatics::SpawnEmitterAttached(SprayPaintFX, this, FName("rt_index_endSocket"),FVector(0,0,0),FRotator(0,0,0),EAttachLocation::Type::KeepRelativeOffset,false);
+		SprayPaintComponent->Deactivate();
+		SprayPaintComponent->bAutoActivate = false;
+		SprayPaintComponent->SetHiddenInGame(false);
 	}
 
-	/*if (GEngine->HMDDevice.IsValid())
-	{
-		//IHeadMountedDisplay* HMD = GEngine->HMDDevice.Get();
-		FString vrmsg = FString(TEXT("HMD Detected, optimizing controls."));
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, vrmsg);
-		LeapController.setPolicy(Controller::PolicyFlag::POLICY_OPTIMIZE_HMD);
-	}*/
 }
 
 
@@ -86,6 +84,10 @@ void UPaintBrushComponent::ClearAllStrokes()
 	if (PaintMaterialInstance)
 	{
 		PaintMaterialInstance->MeshComponent->ClearInstances();
+	}
+	if (SprayPaintComponent)
+	{
+		SprayPaintComponent->KillParticlesForced(); // test
 	}
 }
 
@@ -125,12 +127,23 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 						Delay += DeltaSeconds;
 					}
 					else {
-						Paint();
+						SprayPaint(true);
+					}
+				}
+				else if (Hand.pinchStrength() > 0.8f)
+				{
+					if (Delay < 0.5f)
+					{
+						Delay += DeltaSeconds;
+					}
+					else {
+						MeshPaint();
 					}
 				}
 				else
 				{
 					Delay = 0.0f;
+					SprayPaint(false);
 				}
 			}
 		}
@@ -138,7 +151,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 }
 
 
-void UPaintBrushComponent::Paint()
+void UPaintBrushComponent::MeshPaint()
 {
 	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
 
@@ -154,7 +167,7 @@ void UPaintBrushComponent::Paint()
 	}
 
 	// spawn static mesh
-	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined
+	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined, suitable for VR scale
 	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
 
 
@@ -167,11 +180,23 @@ void UPaintBrushComponent::Paint()
 	}*/
 	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
-	//FString dbgmsg = FString((SpawnLocation.ToString()));
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, dbgmsg);
-
 	PreviousLocation = SpawnLocation;
 
+}
+
+
+void UPaintBrushComponent::SprayPaint(bool Enable)
+{
+	if (Enable && !SprayPainting)
+	{
+		SprayPaintComponent->Activate();
+		SprayPainting = true;
+	}
+	else if (!Enable && SprayPainting)
+	{
+		SprayPaintComponent->Deactivate();
+		SprayPainting = false;
+	}
 }
 
 
