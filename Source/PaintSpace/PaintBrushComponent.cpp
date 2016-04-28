@@ -57,6 +57,12 @@ void UPaintBrushComponent::BeginPlay()
 		SprayPaintComponent->SetHiddenInGame(false);
 	}
 
+	if (PenFX)
+	{
+		PenComponent = UGameplayStatics::SpawnEmitterAttached(PenFX, this, FName("rt_index_endSocket"), FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::Type::KeepRelativeOffset, false);
+		PenComponent->Deactivate();
+		PenComponent->bAutoActivate = false;
+	}
 }
 
 
