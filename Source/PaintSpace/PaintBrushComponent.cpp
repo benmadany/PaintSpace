@@ -4,54 +4,57 @@
 #include "PaintBrushComponent.h"
 #include "PaintMaterial.h"
 
-//using namespace Leap;
 
 // This class should be attached to some scene component in order to provide paint functionality based on sockets.
 
-// Sets default values for this component's properties
 UPaintBrushComponent::UPaintBrushComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
 	PrevFrameID = -1;
 	ProceduralSectionIndex = 0;
 
-	ObjExporter ObjExp = ObjExporter();
-	ObjExporterInstance = &ObjExp;
+	Delay = 0.0f;
+	DelayWait = 0.6f;
 
 	PreviousLocation = FVector(0, 0, 0);
+	ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined, suitable for VR scale
 
+	// this value determines the max dist between instances before interpolating another between them, based on experimentation/estimation and scale
+	InterpolationUnitFactor = (10.0f * ScaleVector.Z) / 2.0f;
+
+	StrokeStart = true;
 	SprayPainting = false;
 
-	Delay = 0.0f;
+	ObjExporter ObjExp = ObjExporter();
+	ObjExporterInstance = &ObjExp;
 }
 
 
-// Called when the game starts
 void UPaintBrushComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 	if (PaintMaterial)
 	{
 		UWorld* const world = GetWorld();
+
 		if (world)
 		{
 			// spawn instanced static mesh actor, better performance than individual actors
 			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
-			//PaintMaterialInstance->ProceduralMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			//PaintMaterialInstance->ProceduralMeshComponent->SetMaterial(0, PaintMaterialInstance->InstanceMesh->Materials[0]->GetMaterial());
 			LODModel = &PaintMaterialInstance->MeshComponent->StaticMesh->RenderData->LODResources[0];
 			VertexBuffer = &LODModel->PositionVertexBuffer;
+			//PaintMaterialInstance->ProceduralMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//PaintMaterialInstance->ProceduralMeshComponent->SetMaterial(0, PaintMaterialInstance->InstanceMesh->Materials[0]->GetMaterial());
 		}
 	}
 
 	if (SprayPaintFX)
 	{
-		SprayPaintComponent = UGameplayStatics::SpawnEmitterAttached(SprayPaintFX, this, FName("rt_index_endSocket"),FVector(0,0,0),FRotator(0,0,0),EAttachLocation::Type::KeepRelativeOffset,false);
+		SprayPaintComponent = UGameplayStatics::SpawnEmitterAttached(SprayPaintFX, this, FName("rt_index_endSocket"), FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::Type::KeepRelativeOffset, false);
 		SprayPaintComponent->Deactivate();
 		SprayPaintComponent->bAutoActivate = false;
 		SprayPaintComponent->SetHiddenInGame(false);
@@ -66,7 +69,6 @@ void UPaintBrushComponent::BeginPlay()
 }
 
 
-// Called every frame
 void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -84,6 +86,7 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 
 }
+
 
 void UPaintBrushComponent::ClearAllStrokes()
 {
@@ -128,7 +131,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 			{
 				if (!Thumb.isExtended() && Index.isExtended() && Hand.grabStrength() < 0.2f)
 				{
-					if (Delay < 0.5f)
+					if (Delay < DelayWait)
 					{
 						Delay += DeltaSeconds;
 					}
@@ -138,7 +141,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 				}
 				else if (Hand.pinchStrength() > 0.8f)
 				{
-					if (Delay < 0.5f)
+					if (Delay < DelayWait)
 					{
 						Delay += DeltaSeconds;
 					}
@@ -150,6 +153,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 				{
 					Delay = 0.0f;
 					SprayPaint(false);
+					StrokeStart = true;
 				}
 			}
 		}
@@ -159,24 +163,27 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 
 void UPaintBrushComponent::MeshPaint()
 {
-	int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
+	//int32 instances = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
 
-	const FVector SpawnLocation = GetComponentLocation();
+	const FVector CurrentLocation = GetComponentLocation();
+	FRotator SpawnRotation = FRotator(0, 0, 0);
+	FVector Direction = CurrentLocation - PreviousLocation;
+	SpawnRotation = FRotationMatrix::MakeFromZ(Direction).Rotator(); // MakeFromZ because we only rotate about Z axis (yaw)
 
-	FRotator SpawnRotation = FRotator(0,0,0);
-
-	if (instances > 0)
+	// Interpolation to improve appearance
+	if (!StrokeStart)
 	{
-		FVector Direction = SpawnLocation - PreviousLocation;
-		// MakeFromZ because we only rotate about Z axis (yaw)
-		SpawnRotation = FRotationMatrix::MakeFromZ(Direction).Rotator();
+		float Dist = Direction.Size();
+		int32 InterpolateCount = FMath::CeilToInt(Dist / InterpolationUnitFactor);
+		for (int32 i = 1; i <= InterpolateCount; i++)
+		{
+			const FVector SpawnLocation = ((Direction / (InterpolateCount + 1)) * i) + PreviousLocation;
+			PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
+		}
 	}
 
 	// spawn static mesh
-	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined, suitable for VR scale
-	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
-
-
+	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, CurrentLocation, ScaleVector));
 
 
 
@@ -186,7 +193,12 @@ void UPaintBrushComponent::MeshPaint()
 	}*/
 	//FString dbgmsg = FString(PaintMaterialInstance->MeshComponent->PerInstanceSMData.Last().Transform.ToString());
 
-	PreviousLocation = SpawnLocation;
+	PreviousLocation = CurrentLocation;
+
+	if (StrokeStart)
+	{
+		StrokeStart = false;
+	}
 
 }
 
@@ -206,6 +218,7 @@ void UPaintBrushComponent::SprayPaint(bool Enable)
 }
 
 
+// Performance cost too high, not used
 void UPaintBrushComponent::GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh)
 {
 	FVector ScaleVector = FVector(0.01f, 0.01f, 0.05f);

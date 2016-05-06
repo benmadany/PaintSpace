@@ -50,13 +50,18 @@ private:
 	Leap::Controller LeapController;
 	int64_t PrevFrameID;
 	float Delay;
+	float DelayWait;
 	APaintMaterial* PaintMaterialInstance;
 	FStaticMeshLODResources* LODModel;
 	FPositionVertexBuffer* VertexBuffer;
 	FVector PreviousLocation;
+	FVector ScaleVector;
+	float InterpolationUnitFactor;
+	bool StrokeStart;
 	int64_t ProceduralSectionIndex;
 	UParticleSystemComponent* SprayPaintComponent;
 	bool SprayPainting;
 	UParticleSystemComponent* PenComponent;
 	ObjExporter* ObjExporterInstance;
+
 };
