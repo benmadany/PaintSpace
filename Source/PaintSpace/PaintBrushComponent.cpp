@@ -14,6 +14,7 @@ UPaintBrushComponent::UPaintBrushComponent()
 
 	PrevFrameID = -1;
 	ProceduralSectionIndex = 0;
+	PaintStyle = 0;
 
 	Delay = 0.0f;
 	DelayWait = 0.6f;
@@ -89,6 +90,19 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 }
 
 
+void UPaintBrushComponent::SwitchStyle()
+{
+	if (PaintStyle == 0)
+	{
+		PaintStyle = 1;
+	}
+	else
+	{
+		PaintStyle = 0;
+	}
+}
+
+
 void UPaintBrushComponent::ClearAllStrokes()
 {
 	if (PaintMaterialInstance)
@@ -116,6 +130,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 		{
 			Leap::Finger Thumb;
 			Leap::Finger Index;
+			Leap::Finger Middle;
 
 			for (Leap::Finger Finger : Hand.fingers())
 			{
@@ -127,20 +142,25 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 				{
 					Index = Finger;
 				}
+				if (Finger.type() == Leap::Finger::Type::TYPE_MIDDLE)
+				{
+					Middle = Finger;
+				}
 			}
-			if (Thumb.isValid() && Index.isValid())
+			if (Thumb.isValid() && Index.isValid() && Middle.isValid())
 			{
-				if (!Thumb.isExtended() && Index.isExtended() && Hand.grabStrength() < 0.2f)
+				if (!Thumb.isExtended() && Index.isExtended() && !Middle.isExtended())
 				{
 					if (Delay < DelayWait)
 					{
 						Delay += DeltaSeconds;
 					}
 					else {
-						SprayPaint(true);
+						Paint();
 					}
 				}
-				else if (Hand.pinchStrength() > 0.8f)
+				/*
+				else if (Hand.pinchStrength() > 0.7f)
 				{
 					if (Delay < DelayWait)
 					{
@@ -150,6 +170,7 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 						MeshPaint();
 					}
 				}
+				*/
 				else
 				{
 					Delay = 0.0f;
@@ -158,6 +179,19 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 				}
 			}
 		}
+	}
+}
+
+
+void UPaintBrushComponent::Paint()
+{
+	if (PaintStyle == 0)
+	{
+		MeshPaint();
+	}
+	else
+	{
+		SprayPaint(true);
 	}
 }
 

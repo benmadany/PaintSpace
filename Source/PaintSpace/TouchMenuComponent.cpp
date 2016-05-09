@@ -23,7 +23,7 @@ UTouchMenuComponent::UTouchMenuComponent()
 void UTouchMenuComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (MenuItemTemplate)
 	{
 		UWorld* const world = GetWorld();
@@ -47,7 +47,7 @@ void UTouchMenuComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	CheckLeapFrame();
 	DetermineVisibility();
 	DetermineLocation();
-	
+
 	if (RootOpacity <= 0.0f)
 	{
 		CollapseMenu();
@@ -149,7 +149,8 @@ void UTouchMenuComponent::ExpandMenu()
 		for (TSubclassOf<ATouchMenuItem> Child : ChildTemplates)
 		{
 			ATouchMenuItem* ChildInstance = GetWorld()->SpawnActor<ATouchMenuItem>(Child);
-			ChildInstance->SetLocationOffset(FVector(0, 7, -5 + (10 * Children.Num())));
+			FVector ChildOffset = FVector(0, 5, -5 + (10 * Children.Num()));
+			ChildInstance->SetLocationOffset(GetWorld()->GetFirstPlayerController()->GetControlRotation().RotateVector(ChildOffset));
 			Children.Add(ChildInstance);
 		}
 

@@ -25,7 +25,10 @@ public:
 	// Called every frame
 	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Instanced Static Mesh")
+	UFUNCTION(BlueprintCallable, Category = "Painting")
+	void SwitchStyle();
+
+	UFUNCTION(BlueprintCallable, Category = "Painting")
 	void ClearAllStrokes();
 
 	UFUNCTION(BlueprintCallable, Category = "Export")
@@ -42,6 +45,7 @@ public:
 	
 private:
 	void ProcessLeapFrame(Leap::Frame Frame, float DeltaSeconds);
+	void Paint();
 	void MeshPaint();
 	void SprayPaint(bool Enable);
 	void GenerateProceduralMesh(FInstancedStaticMeshInstanceData PrevMesh, FInstancedStaticMeshInstanceData CurrentMesh);
@@ -51,6 +55,7 @@ private:
 	int64_t PrevFrameID;
 	float Delay;
 	float DelayWait;
+	int PaintStyle;
 	APaintMaterial* PaintMaterialInstance;
 	FStaticMeshLODResources* LODModel;
 	FPositionVertexBuffer* VertexBuffer;
