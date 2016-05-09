@@ -31,6 +31,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Painting")
 	void ClearAllStrokes();
 
+	UFUNCTION(BlueprintCallable, Category = "Painting")
+	void ClearLastStroke();
+
 	UFUNCTION(BlueprintCallable, Category = "Export")
 	void ExportObjBP();
 
@@ -63,10 +66,14 @@ private:
 	FVector ScaleVector;
 	float InterpolationUnitFactor;
 	bool StrokeStart;
+	TArray<int32> LastStrokes;
+	int32 LastStrokeCount;
 	int64_t ProceduralSectionIndex;
 	UParticleSystemComponent* SprayPaintComponent;
 	bool SprayPainting;
 	UParticleSystemComponent* PenComponent;
 	ObjExporter* ObjExporterInstance;
+	float RefractoryWait;
+	float RefractoryPeriod;
 
 };

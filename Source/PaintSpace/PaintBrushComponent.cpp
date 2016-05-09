@@ -18,6 +18,11 @@ UPaintBrushComponent::UPaintBrushComponent()
 
 	Delay = 0.0f;
 	DelayWait = 0.6f;
+	RefractoryWait = 0.0f;
+	RefractoryPeriod = 0.5f;
+
+	LastStrokes = TArray<int32>();
+	LastStrokeCount = 0;
 
 	PreviousLocation = FVector(0, 0, 0);
 	ScaleVector = FVector(0.01f, 0.01f, 0.05f); // experimentally determined, suitable for VR scale
@@ -86,39 +91,81 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 		}
 
 	}
-
+	if (RefractoryWait < RefractoryPeriod)
+	{
+		RefractoryWait += DeltaTime;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::FromInt(SprayPaintComponent->EmitterInstances.Num()));
 }
 
 
 void UPaintBrushComponent::SwitchStyle()
 {
-	if (PaintStyle == 0)
+	if (RefractoryWait >= RefractoryPeriod)
 	{
-		PaintStyle = 1;
-	}
-	else
-	{
-		PaintStyle = 0;
+		if (PaintStyle == 0)
+		{
+			PaintStyle = 1;
+		}
+		else
+		{
+			PaintStyle = 0;
+		}
+		RefractoryWait = 0.0f;
 	}
 }
 
 
 void UPaintBrushComponent::ClearAllStrokes()
 {
-	if (PaintMaterialInstance)
+	if (RefractoryWait >= RefractoryPeriod)
 	{
-		PaintMaterialInstance->MeshComponent->ClearInstances();
+		if (PaintMaterialInstance)
+		{
+			PaintMaterialInstance->MeshComponent->ClearInstances();
+		}
+		if (SprayPaintComponent)
+		{
+			SprayPaintComponent->KillParticlesForced(); // test
+		}
+		RefractoryWait = 0.0f;
 	}
-	if (SprayPaintComponent)
+}
+
+
+void UPaintBrushComponent::ClearLastStroke()
+{
+	if (RefractoryWait >= RefractoryPeriod)
 	{
-		SprayPaintComponent->KillParticlesForced(); // test
+		int32 LastIndex = LastStrokes.Num() - 1;
+		if (LastIndex < 0)
+		{
+			return;
+		}
+
+		for (int i = 0; i < LastStrokes[LastIndex]; i++)
+		{
+			int Count = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
+			if (Count > 0)
+			{
+				PaintMaterialInstance->MeshComponent->RemoveInstance(Count - 1);
+			}
+		}
+		LastStrokes.Pop();
+		RefractoryWait = 0.0f;
+
+		// need to add spraypaint system stroke tracking
 	}
 }
 
 
 void UPaintBrushComponent::ExportObjBP()
 {
-	ExportObj();
+	if (RefractoryWait >= RefractoryPeriod)
+	{
+		ExportObj();
+		RefractoryWait = 0.0f;
+	}
 }
 
 
@@ -156,6 +203,10 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 						Delay += DeltaSeconds;
 					}
 					else {
+						if (StrokeStart)
+						{
+							LastStrokeCount = 0;
+						}
 						Paint();
 					}
 				}
@@ -173,6 +224,10 @@ void UPaintBrushComponent::ProcessLeapFrame(Leap::Frame Frame, float DeltaSecond
 				*/
 				else
 				{
+					if (!StrokeStart && PaintStyle == 0)
+					{
+						LastStrokes.Add(LastStrokeCount);
+					}
 					Delay = 0.0f;
 					SprayPaint(false);
 					StrokeStart = true;
@@ -213,12 +268,14 @@ void UPaintBrushComponent::MeshPaint()
 		for (int32 i = 1; i <= InterpolateCount; i++)
 		{
 			const FVector SpawnLocation = ((Direction / (InterpolateCount + 1)) * i) + PreviousLocation;
-			PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
+			int32 LatestIndex = PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, SpawnLocation, ScaleVector));
+			LastStrokeCount += 1;
 		}
 	}
 
 	// spawn static mesh
-	PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, CurrentLocation, ScaleVector));
+	int32 LatestIndex = PaintMaterialInstance->MeshComponent->AddInstance(FTransform(SpawnRotation, CurrentLocation, ScaleVector));
+	LastStrokeCount += 1;
 
 
 
