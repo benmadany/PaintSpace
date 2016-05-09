@@ -33,6 +33,8 @@ UPaintBrushComponent::UPaintBrushComponent()
 	StrokeStart = true;
 	SprayPainting = false;
 
+	PaintMaterialInstances = TArray<APaintMaterial*>();
+
 	ObjExporter ObjExp = ObjExporter();
 	ObjExporterInstance = &ObjExp;
 }
@@ -51,8 +53,14 @@ void UPaintBrushComponent::BeginPlay()
 		{
 			// spawn instanced static mesh actor, better performance than individual actors
 			PaintMaterialInstance = world->SpawnActor<APaintMaterial>(PaintMaterial);
+			PaintMaterialInstances.Add(PaintMaterialInstance);
+
+			MeshDynamicMat = UMaterialInstanceDynamic::Create(PaintMaterialInstance->MeshComponent->GetMaterial(0), this);
+			//PaintMaterialInstance->MeshComponent->SetMaterial(0, MeshDynamicMat);
+
 			LODModel = &PaintMaterialInstance->MeshComponent->StaticMesh->RenderData->LODResources[0];
 			VertexBuffer = &LODModel->PositionVertexBuffer;
+
 			//PaintMaterialInstance->ProceduralMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			//PaintMaterialInstance->ProceduralMeshComponent->SetMaterial(0, PaintMaterialInstance->InstanceMesh->Materials[0]->GetMaterial());
 		}
@@ -61,6 +69,17 @@ void UPaintBrushComponent::BeginPlay()
 	if (SprayPaintFX)
 	{
 		SprayPaintComponent = UGameplayStatics::SpawnEmitterAttached(SprayPaintFX, this, FName("rt_index_endSocket"), FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::Type::KeepRelativeOffset, false);
+
+		//ParticleDynamicMat = UMaterialInstanceDynamic::Create(SprayPaintComponent->GetMaterial(0),this);
+		//SprayPaintComponent->SetMaterial(0, ParticleDynamicMat);
+		/*
+		FParticleSysParam Param = FParticleSysParam();
+		Param.Name = "MatColor";
+		Param.ParamType = EParticleSysParamType::PSPT_Color;
+		Param.Color = FColor::Green;
+		SprayPaintComponent->InstanceParameters.Add(Param);
+		*/
+
 		SprayPaintComponent->Deactivate();
 		SprayPaintComponent->bAutoActivate = false;
 		//SprayPaintComponent->SetTranslucentSortPriority(0);
@@ -119,11 +138,15 @@ void UPaintBrushComponent::ClearAllStrokes()
 {
 	if (RefractoryWait >= RefractoryPeriod)
 	{
-		if (PaintMaterialInstance)
+		for (APaintMaterial* Instance : PaintMaterialInstances)
 		{
-			PaintMaterialInstance->MeshComponent->ClearInstances();
+			if (Instance)
+			{
+				Instance->MeshComponent->ClearInstances();
+			}
 			LastStrokes.Empty();
 		}
+
 		if (SprayPaintComponent)
 		{
 			SprayPaintComponent->KillParticlesForced(); // test
@@ -146,7 +169,13 @@ void UPaintBrushComponent::ClearLastStroke()
 		for (int i = 0; i < LastStrokes[LastIndex]; i++)
 		{
 			int Count = PaintMaterialInstance->MeshComponent->PerInstanceSMData.Num();
-			if (Count > 0)
+			if (Count == 0)
+			{
+				PaintMaterialInstances.Pop();
+				PaintMaterialInstance = PaintMaterialInstances[PaintMaterialInstances.Num() - 1];
+				LastStrokes[LastIndex] = LastStrokes[LastIndex] + 1;
+			}
+			else if (Count > 0)
 			{
 				PaintMaterialInstance->MeshComponent->RemoveInstance(Count - 1);
 			}
@@ -155,6 +184,26 @@ void UPaintBrushComponent::ClearLastStroke()
 		RefractoryWait = 0.0f;
 
 		// need to add spraypaint system stroke tracking
+	}
+}
+
+
+void UPaintBrushComponent::ChangeColors()
+{
+	if (RefractoryWait >= RefractoryPeriod)
+	{
+		PaintMaterialInstance = World->SpawnActor<APaintMaterial>(PaintMaterial);
+		PaintMaterialInstances.Add(PaintMaterialInstance);
+		MeshDynamicMat = UMaterialInstanceDynamic::Create(PaintMaterialInstance->MeshComponent->GetMaterial(0), this);
+		PaintMaterialInstance->MeshComponent->SetMaterial(0, MeshDynamicMat);
+
+		MeshDynamicMat->SetVectorParameterValue("MatColor", FColor::MakeRandomColor());
+
+
+		//ParticleDynamicMat->SetVectorParameterValue("MatColor", FColor::Blue);
+		//SprayPaintComponent->InstanceParameters[0].Color = FColor::Red;
+
+		RefractoryWait = 0.0f;
 	}
 }
 

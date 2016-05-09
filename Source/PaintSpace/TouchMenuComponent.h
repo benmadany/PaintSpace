@@ -44,7 +44,7 @@ private:
 	int64_t PrevFrameID;
 	ATouchMenuItem* MenuItem;
 	TArray<ATouchMenuItem*> Children;
-	UMaterialInstanceDynamic* DynamicMat;
+	//UMaterialInstanceDynamic* DynamicMat;
 	
 	float RootOpacity;
 	float ChildOpacity;

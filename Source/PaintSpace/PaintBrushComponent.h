@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Painting")
 	void ClearLastStroke();
 
+	UFUNCTION(BlueprintCallable, Category = "Painting")
+	void ChangeColors();
+
 	UFUNCTION(BlueprintCallable, Category = "Export")
 	void ExportObjBP();
 
@@ -59,7 +62,9 @@ private:
 	float Delay;
 	float DelayWait;
 	int PaintStyle;
+	TArray<APaintMaterial*> PaintMaterialInstances;
 	APaintMaterial* PaintMaterialInstance;
+	UMaterialInstanceDynamic* MeshDynamicMat;
 	FStaticMeshLODResources* LODModel;
 	FPositionVertexBuffer* VertexBuffer;
 	FVector PreviousLocation;
@@ -70,6 +75,7 @@ private:
 	int32 LastStrokeCount;
 	int64_t ProceduralSectionIndex;
 	UParticleSystemComponent* SprayPaintComponent;
+	//UMaterialInstanceDynamic* ParticleDynamicMat;
 	bool SprayPainting;
 	UParticleSystemComponent* PenComponent;
 	ObjExporter* ObjExporterInstance;

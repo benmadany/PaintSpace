@@ -149,7 +149,7 @@ void UTouchMenuComponent::ExpandMenu()
 		for (TSubclassOf<ATouchMenuItem> Child : ChildTemplates)
 		{
 			ATouchMenuItem* ChildInstance = GetWorld()->SpawnActor<ATouchMenuItem>(Child);
-			FVector ChildOffset = FVector(0, 5, -5 + (10 * Children.Num()));
+			FVector ChildOffset = FVector(0, 6, (-5 * ChildTemplates.Num()/2) + (6 * Children.Num()));
 			ChildInstance->SetLocationOffset(GetWorld()->GetFirstPlayerController()->GetControlRotation().RotateVector(ChildOffset));
 			Children.Add(ChildInstance);
 		}

@@ -18,7 +18,7 @@ PaintSpace is made for drawing in 3D space using an Oculus Rift and Leap Motion 
 - [x] "Spray-paint" style drawing
 - [ ] Creating of "photographs" based on drawn scene
 - [ ] Wireframe drawing, wireframe based mesh creation, mesh surface painting (tentative)
-- [ ] UI options including: color/material change, drawing method change, undo/redo, etc.
+- [x] UI options including: color/material change, drawing method change, undo/redo, etc.
 
 ###Examples
 To be added.
