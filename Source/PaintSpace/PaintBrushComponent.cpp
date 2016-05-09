@@ -95,7 +95,6 @@ void UPaintBrushComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 	{
 		RefractoryWait += DeltaTime;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red, FString::FromInt(SprayPaintComponent->EmitterInstances.Num()));
 }
 
 
@@ -123,6 +122,7 @@ void UPaintBrushComponent::ClearAllStrokes()
 		if (PaintMaterialInstance)
 		{
 			PaintMaterialInstance->MeshComponent->ClearInstances();
+			LastStrokes.Empty();
 		}
 		if (SprayPaintComponent)
 		{
