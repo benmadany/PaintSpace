@@ -57,6 +57,7 @@ void UPaintBrushComponent::BeginPlay()
 		SprayPaintComponent = UGameplayStatics::SpawnEmitterAttached(SprayPaintFX, this, FName("rt_index_endSocket"), FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::Type::KeepRelativeOffset, false);
 		SprayPaintComponent->Deactivate();
 		SprayPaintComponent->bAutoActivate = false;
+		//SprayPaintComponent->SetTranslucentSortPriority(0);
 		SprayPaintComponent->SetHiddenInGame(false);
 	}
 
