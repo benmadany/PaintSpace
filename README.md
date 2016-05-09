@@ -26,4 +26,4 @@ Brief Demo:
 [![PaintSpace Demo](https://img.youtube.com/vi/Q5Ch-A_rn30/0.jpg)](https://www.youtube.com/watch?v=Q5Ch-A_rn30)
 
 ###Acknowledgements
-Thanks very much to Getnamo for his UE4 Leap Motion plugin!
+Thanks very much to Getnamo for his UE4 Leap Motion plugin! Thanks to my dad, Peter Madany, for always being willing to listen or help! Thanks to my advisor, Robert Signorile, for his help and for getting me to continue making more and more progress on this project!
